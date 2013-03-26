@@ -118,3 +118,18 @@ class trading():
                 return r.json()
         else:
             r.raise_for_status()
+
+    def cancel_order(self, order_id):
+        """
+        Cancel the order specified by order_id
+        Returns True if order was succesfully canceled, otherwise False
+        """
+        self.params['id'] = order_id
+        r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=self.params)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()

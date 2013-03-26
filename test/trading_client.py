@@ -24,5 +24,10 @@ class bitstamp_trading_TestCase(unittest.TestCase):
         print open_orders
         self.assertIsInstance(open_orders, list)
 
+    def test_cancel_order(self):
+        cancel_order = self.client.cancel_order(123)
+        print cancel_order
+        self.assertEquals(True, False)
+
 if __name__ == '__main__':
     unittest.main()
