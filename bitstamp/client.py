@@ -2,6 +2,7 @@ __author__ = 'kmadac'
 
 import requests
 
+
 class public():
     def __init__(self, proxydict=None):
         self.proxydict = proxydict
@@ -152,3 +153,35 @@ class trading():
                 return r.json()
         else:
             r.raise_for_status()
+
+    def bitcoin_withdrawal(self, amount, address):
+        """
+        Send bitcoins to another bitcoin wallet specified by address
+        """
+        self.params['amount'] = amount
+        self.params['address'] = address
+
+        r = requests.post("https://www.bitstamp.net/api/buy/", data=self.params, proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            #TODO: Not tested whether bitstamp will return 'True' string
+            elif r.text == 'True':
+                return True
+        else:
+            r.raise_for_status()
+
+    def bitcoin_deposit_address(self):
+        """
+        Returns bitcoin deposit address as unicode string
+        """
+        r = requests.post("https://www.bitstamp.net/api/bitcoin_deposit_address/", data=self.params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.text
+        else:
+            r.raise_for_status()
+
