@@ -2,13 +2,15 @@ __author__ = 'kmadac'
 
 import requests
 
-
 class public():
+    def __init__(self, proxydict=None):
+        self.proxydict = proxydict
+
     def ticker(self):
         """
         Return dictionary
         """
-        r = requests.get("https://www.bitstamp.net/api/ticker/")
+        r = requests.get("https://www.bitstamp.net/api/ticker/", proxies=self.proxydict)
         if r.status_code == 200:
             return r.json()
         else:
@@ -21,7 +23,7 @@ class public():
         """
         params = {'group': group}
 
-        r = requests.get("https://www.bitstamp.net/api/order_book/", params=params)
+        r = requests.get("https://www.bitstamp.net/api/order_book/", params=params, proxies=self.proxydict)
         if r.status_code == 200:
             return r.json()
         else:
@@ -33,7 +35,7 @@ class public():
         """
         params = {'timedelta': timedelta_secs}
 
-        r = requests.get("https://www.bitstamp.net/api/transactions/", params=params)
+        r = requests.get("https://www.bitstamp.net/api/transactions/", params=params, proxies=self.proxydict)
         if r.status_code == 200:
             return r.json()
         else:
@@ -43,7 +45,7 @@ class public():
         """
         Returns simple dictionary {'usd': 'Bitinstant USD reserves'}
         """
-        r = requests.get("https://www.bitstamp.net/api/bitinstant/")
+        r = requests.get("https://www.bitstamp.net/api/bitinstant/", proxies=self.proxydict)
         if r.status_code == 200:
             return r.json()
         else:
@@ -54,7 +56,7 @@ class public():
         Returns simple dictionary
         {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
         """
-        r = requests.get("https://www.bitstamp.net/api/eur_usd/")
+        r = requests.get("https://www.bitstamp.net/api/eur_usd/", proxies=self.proxydict)
         if r.status_code == 200:
             return r.json()
         else:
@@ -62,7 +64,8 @@ class public():
 
 
 class trading():
-    def __init__(self, user, password):
+    def __init__(self, user, password, proxydict=None):
+        self.proxydict = proxydict
         self.params = {'user': user, 'password': password}
 
     def account_ballance(self):
@@ -76,7 +79,7 @@ class trading():
          u'usd_balance': u'114.64',
          u'usd_available': u'114.64'}
         """
-        r = requests.post("https://www.bitstamp.net/api/balance/", data=self.params)
+        r = requests.post("https://www.bitstamp.net/api/balance/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -96,7 +99,7 @@ class trading():
         """
         self.params['timedelta'] = timedelta_secs
 
-        r = requests.post("https://www.bitstamp.net/api/user_transactions/", data=self.params)
+        r = requests.post("https://www.bitstamp.net/api/user_transactions/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -110,7 +113,7 @@ class trading():
         Returns JSON list of open orders. Each order is represented as dictionary:
 
         """
-        r = requests.post("https://www.bitstamp.net/api/open_orders/", data=self.params)
+        r = requests.post("https://www.bitstamp.net/api/open_orders/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -122,10 +125,26 @@ class trading():
     def cancel_order(self, order_id):
         """
         Cancel the order specified by order_id
-        Returns True if order was succesfully canceled, otherwise False
+        Returns True if order was successfully canceled, otherwise False
         """
         self.params['id'] = order_id
-        r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=self.params)
+        r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=self.params, proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()
+
+    def buy_limit_order(self, amount, price):
+        """
+        Order to buy amount of bitcoins for specified price
+        """
+        self.params['amount'] = amount
+        self.params['price'] = price
+
+        r = requests.post("https://www.bitstamp.net/api/buy/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
