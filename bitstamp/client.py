@@ -112,7 +112,6 @@ class trading():
     def open_orders(self):
         """
         Returns JSON list of open orders. Each order is represented as dictionary:
-
         """
         r = requests.post("https://www.bitstamp.net/api/open_orders/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
@@ -126,15 +125,16 @@ class trading():
     def cancel_order(self, order_id):
         """
         Cancel the order specified by order_id
-        Returns True if order was successfully canceled, otherwise False
+        Returns True if order was successfully canceled,
+        otherwise tuple (False, msg) like (False, u'Order not found')
         """
         self.params['id'] = order_id
         r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
-            if 'error' in r.json():
-                return False, r.json()['error']
+            if r.text == u'true':
+                return True
             else:
-                return r.json()
+                return False, r.json()['error']
         else:
             r.raise_for_status()
 

@@ -29,15 +29,14 @@ class bitstamp_trading_TestCase(unittest.TestCase):
         print bitcoin_deposit_address
         self.assertEquals(bitcoin_deposit_address, u'"1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA"')
 
-    # def test_buy_cancel_order(self):
-    #     order_buy = self.client.buy_limit_order(1, 10)
-    #     print order_buy
-
-
-#    def test_cancel_order(self):
-#        cancel_order = self.client.cancel_order(123)
-#        print cancel_order
-#        self.assertEquals(True, False)
+    def test_buy_cancel_order(self):
+        order_buy = self.client.buy_limit_order(1, 10)
+        print order_buy
+        self.assertIn('id', order_buy)
+        order_id = order_buy['id']
+        cancel_order = self.client.cancel_order(order_id)
+        print cancel_order
+        self.assertEquals(cancel_order, True)
 
 if __name__ == '__main__':
     unittest.main()
