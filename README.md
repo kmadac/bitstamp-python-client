@@ -8,8 +8,12 @@ Python package to communicate with bitstamp.net API
 There are two classes. One for public part of API and second for trading part.
 Public class doesn't need user credentials, because API commands which this class implements are not bound to bitstamp user account.
 
-Description of API
+Description of API:
 https://www.bitstamp.net/api/
+
+### Package requirements ###
+
+* requests (pip install requests)
 
 ### Following methods are not implemented yet ###
 
