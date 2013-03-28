@@ -154,6 +154,22 @@ class trading():
         else:
             r.raise_for_status()
 
+    def sell_limit_order(self, amount, price):
+        """
+        Order to buy amount of bitcoins for specified price
+        """
+        self.params['amount'] = amount
+        self.params['price'] = price
+
+        r = requests.post("https://www.bitstamp.net/api/sell/", data=self.params, proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()
+
     def bitcoin_withdrawal(self, amount, address):
         """
         Send bitcoins to another bitcoin wallet specified by address
