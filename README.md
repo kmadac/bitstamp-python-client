@@ -28,3 +28,6 @@ https://www.bitstamp.net/api/
     bs_client_trading = bitstamp.client.trading(user='999999', password='yoursecret')
     account_balance = bs_client_trading.account_ballance()
 
+If this code is usable for you, here is my wallet id where you can contribute to my work with few micro BCs:
+
+## 159bihAxJTKNsJSvCxYgAHKd8UX7kJugUQ ##
