@@ -163,11 +163,10 @@ class trading():
 
         r = requests.post("https://www.bitstamp.net/api/buy/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
-            if 'error' in r.json():
-                return False, r.json()['error']
-            #TODO: Not tested whether bitstamp will return 'True' string
-            elif r.text == 'True':
+            if r.text == u'true':
                 return True
+            else:
+                return False, r.json()['error']
         else:
             r.raise_for_status()
 
