@@ -177,7 +177,7 @@ class trading():
         self.params['amount'] = amount
         self.params['address'] = address
 
-        r = requests.post("https://www.bitstamp.net/api/buy/", data=self.params, proxies=self.proxydict)
+        r = requests.post("https://www.bitstamp.net/api/bitcoin_withdrawal/", data=self.params, proxies=self.proxydict)
         if r.status_code == 200:
             if r.text == u'true':
                 return True
