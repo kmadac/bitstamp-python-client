@@ -21,7 +21,6 @@ https://www.bitstamp.net/api/
 * Check Bitstamp code
 * Redeem Bitstamp code
 * Send to user
-* Withdrawal requests
 
 ### Usage example ###
 

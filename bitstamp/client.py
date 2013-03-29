@@ -200,3 +200,16 @@ class trading():
         else:
             r.raise_for_status()
 
+    def withdrawal_requests(self):
+        """
+        Returns list of withdrawal requests. Each request is represented as dictionary
+        """
+        r = requests.post("https://www.bitstamp.net/api/withdrawal_requests/", data=self.params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()

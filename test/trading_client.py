@@ -47,5 +47,10 @@ class bitstamp_trading_TestCase(unittest.TestCase):
         print cancel_order
         self.assertEquals(cancel_order, True)
 
+    def test_withdrawal_requests(self):
+        withdrawal_requests = self.client.withdrawal_requests()
+        print withdrawal_requests
+        self.assertIsInstance(withdrawal_requests, list)
+
 if __name__ == '__main__':
     unittest.main()
