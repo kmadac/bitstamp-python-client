@@ -6,12 +6,7 @@ import bitstamp.client
 
 class bitstamp_public_TestCase(unittest.TestCase):
     def setUp(self):
-        proxyDict = {
-                      "http"  : "172.16.3.3:3128",
-                      "https" : "172.16.3.3:3128",
-                      "ftp"   : "172.16.3.3:3128"
-                    }
-        self.client = bitstamp.client.public(proxydict=proxyDict)
+        self.client = bitstamp.client.public()
 
     def test_ticker(self):
         ticker = self.client.ticker()
