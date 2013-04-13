@@ -15,6 +15,10 @@ https://www.bitstamp.net/api/
 
 * requests (pip install requests)
 
+### Install from Git ###
+
+    sudo pip install git+git://github.com/kmadac/bitstamp-python-client.git
+
 ### Following methods are not implemented yet ###
 
 * Create Bitstamp code
