@@ -8,5 +8,6 @@ setup(
     license='',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
-    description='Bitstamp API python implementation'
+    description='Bitstamp API python implementation',
+    requires=['requests']
 )
