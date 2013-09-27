@@ -1,7 +1,9 @@
 __author__ = 'kmadac'
 
 import requests
-
+import time
+import hmac
+import hashlib
 
 class public():
     def __init__(self, proxydict=None):
@@ -65,11 +67,24 @@ class public():
 
 
 class trading():
-    def __init__(self, user, password, proxydict=None):
+    def __init__(self, username, key, secret, proxydict=None):
         self.proxydict = proxydict
-        self.params = {'user': user, 'password': password}
+        self.username = username
+        self.key = key
+        self.secret = secret
+        self.nonce = int(time.time())
+        
+    def get_params(self):
+        params = {}
+        params['key'] = self.key
+        msg = str(self.nonce) + self.username + self.key
+        signature = hmac.new(self.secret, msg=msg, digestmod=hashlib.sha256).hexdigest().upper()
+        params['signature'] = signature
+        params['nonce'] = self.nonce
+        self.nonce += 1
+        return params
 
-    def account_ballance(self):
+    def account_balance(self):
         """
         Returns dictionary:
         {u'btc_reserved': u'0',
@@ -80,7 +95,8 @@ class trading():
          u'usd_balance': u'114.64',
          u'usd_available': u'114.64'}
         """
-        r = requests.post("https://www.bitstamp.net/api/balance/", data=self.params, proxies=self.proxydict)
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/balance/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -89,7 +105,7 @@ class trading():
         else:
             r.raise_for_status()
 
-    def user_transactions(self, timedelta_secs=86400):
+    def user_transactions(self, offset=0, limit=100, descending=True):
         """
         Returns descending list of transactions. Every transaction (dictionary) contains
         {u'usd': u'-39.25',
@@ -98,9 +114,15 @@ class trading():
          u'type': 2,
          u'id': 213642}
         """
-        self.params['timedelta'] = timedelta_secs
+        params = self.get_params()
+        params['offset'] = offset
+        params['limit'] = limit
+        if descending:
+            params['sort'] = "desc"
+        else:
+            params['sort'] = "asc"
 
-        r = requests.post("https://www.bitstamp.net/api/user_transactions/", data=self.params, proxies=self.proxydict)
+        r = requests.post("https://www.bitstamp.net/api/user_transactions/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -113,7 +135,8 @@ class trading():
         """
         Returns JSON list of open orders. Each order is represented as dictionary:
         """
-        r = requests.post("https://www.bitstamp.net/api/open_orders/", data=self.params, proxies=self.proxydict)
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/open_orders/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -128,8 +151,9 @@ class trading():
         Returns True if order was successfully canceled,
         otherwise tuple (False, msg) like (False, u'Order not found')
         """
-        self.params['id'] = order_id
-        r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=self.params, proxies=self.proxydict)
+        params = self.get_params()
+        params['id'] = order_id
+        r = requests.post("https://www.bitstamp.net/api/cancel_order/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if r.text == u'true':
                 return True
@@ -142,10 +166,11 @@ class trading():
         """
         Order to buy amount of bitcoins for specified price
         """
-        self.params['amount'] = amount
-        self.params['price'] = price
+        params = self.get_params()
+        params['amount'] = amount
+        params['price'] = price
 
-        r = requests.post("https://www.bitstamp.net/api/buy/", data=self.params, proxies=self.proxydict)
+        r = requests.post("https://www.bitstamp.net/api/buy/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -158,10 +183,11 @@ class trading():
         """
         Order to buy amount of bitcoins for specified price
         """
-        self.params['amount'] = amount
-        self.params['price'] = price
+        params = self.get_params()
+        params['amount'] = amount
+        params['price'] = price
 
-        r = requests.post("https://www.bitstamp.net/api/sell/", data=self.params, proxies=self.proxydict)
+        r = requests.post("https://www.bitstamp.net/api/sell/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
@@ -169,15 +195,63 @@ class trading():
                 return r.json()
         else:
             r.raise_for_status()
+            
+    def check_bitstamp_code(self, code):
+        """
+        Returns JSON dictionary containing USD and BTC amount included in given bitstamp code.
+        """
+        params = self.get_params()
+        params['code'] = code
+        r = requests.post("https://www.bitstamp.net/api/check_code/", data=params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()
+            
+    def redeem_bitstamp_code(self, code):
+        """
+        Returns JSON dictionary containing USD and BTC amount added to user's account.
+        """
+        params = self.get_params()
+        params['code'] = code
+        r = requests.post("https://www.bitstamp.net/api/redeem_code/", data=params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()
+            
+    def withdrawal_requests(self):
+        """
+        Returns list of withdrawal requests. Each request is represented as dictionary
+        """
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/withdrawal_requests/", data=params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.json()
+        else:
+            r.raise_for_status()            
 
     def bitcoin_withdrawal(self, amount, address):
         """
         Send bitcoins to another bitcoin wallet specified by address
         """
-        self.params['amount'] = amount
-        self.params['address'] = address
+        params = self.get_params()
+        params['amount'] = amount
+        params['address'] = address
 
-        r = requests.post("https://www.bitstamp.net/api/bitcoin_withdrawal/", data=self.params, proxies=self.proxydict)
+        r = requests.post("https://www.bitstamp.net/api/bitcoin_withdrawal/", data=params, proxies=self.proxydict)
         if r.status_code == 200:
             if r.text == u'true':
                 return True
@@ -190,7 +264,8 @@ class trading():
         """
         Returns bitcoin deposit address as unicode string
         """
-        r = requests.post("https://www.bitstamp.net/api/bitcoin_deposit_address/", data=self.params,
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/bitcoin_deposit_address/", data=params,
                           proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
@@ -200,16 +275,53 @@ class trading():
         else:
             r.raise_for_status()
 
-    def withdrawal_requests(self):
+    def unconfirmed_bitcoin_deposits(self):
         """
-        Returns list of withdrawal requests. Each request is represented as dictionary
+        Returns JSON list of unconfirmed bitcoin transactions. Each transaction is represented as dictionary:
+        amount - bitcoin amount
+        address - deposit address used
+        confirmations - number of confirmations
         """
-        r = requests.post("https://www.bitstamp.net/api/withdrawal_requests/", data=self.params,
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/unconfirmed_btc/", data=params,
                           proxies=self.proxydict)
         if r.status_code == 200:
             if 'error' in r.json():
                 return False, r.json()['error']
             else:
                 return r.json()
+        else:
+            r.raise_for_status()
+            
+    def ripple_withdrawal(self, amount, address, currency):
+        """
+        Returns true if successful
+        """
+        params = self.get_params()
+        params['amount'] = amount
+        params['address'] = address
+        params['currency'] = currency
+
+        r = requests.post("https://www.bitstamp.net/api/ripple_withdrawal/", data=params, proxies=self.proxydict)
+        if r.status_code == 200:
+            if r.text == u'true':
+                return True
+            else:
+                return False, r.json()['error']
+        else:
+            r.raise_for_status()
+
+    def ripple_deposit_address(self):
+        """
+        Returns ripple deposit address as unicode string
+        """
+        params = self.get_params()
+        r = requests.post("https://www.bitstamp.net/api/ripple_address/", data=params,
+                          proxies=self.proxydict)
+        if r.status_code == 200:
+            if 'error' in r.json():
+                return False, r.json()['error']
+            else:
+                return r.text
         else:
             r.raise_for_status()
