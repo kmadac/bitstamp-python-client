@@ -19,20 +19,13 @@ https://www.bitstamp.net/api/
 
     sudo pip install git+git://github.com/kmadac/bitstamp-python-client.git
 
-### Following methods are not implemented yet ###
-
-* Create Bitstamp code
-* Check Bitstamp code
-* Redeem Bitstamp code
-* Send to user
-
 ### Usage example ###
 
     import bitstamp.client
     bs_client_public = bitstamp.client.public()
     ticker = bs_client_public.ticker()
 
-    bs_client_trading = bitstamp.client.trading(user='999999', password='yoursecret')
+    bs_client_trading = bitstamp.client.trading(user='999999', key='xxx', secret='xxx')
     account_balance = bs_client_trading.account_ballance()
 
 ### If this code is usable for you, here is my wallet id where you can contribute to my work with few micro BCs: ###
