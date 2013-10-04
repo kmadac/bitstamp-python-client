@@ -6,13 +6,12 @@ import os
 
 
 class bitstamp_trading_TestCase(unittest.TestCase):
-    def setUp(self):
-        self.client = bitstamp.client.trading(os.environ['bs_user'], os.environ['bs_pass'])
+    client = bitstamp.client.trading(os.environ['bs_user'], os.environ['bs_key'], os.environ['bs_secret'])
 
     def test_account_ballance(self):
-        account_ballance = self.client.account_ballance()
-        print account_ballance
-        self.assertIsInstance(account_ballance, dict)
+        account_balance = self.client.account_balance()
+        print account_balance
+        self.assertIsInstance(account_balance, dict)
 
     def test_user_transactions(self):
         user_transactions = self.client.user_transactions()
