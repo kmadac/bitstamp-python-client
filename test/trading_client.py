@@ -51,5 +51,10 @@ class bitstamp_trading_TestCase(unittest.TestCase):
         print withdrawal_requests
         self.assertIsInstance(withdrawal_requests, list)
 
+    def test_unconfirmed_bitcoin_deposits(self):
+        unconfirmed_deposits = self.client.unconfirmed_bitcoin_deposits()
+        print unconfirmed_deposits
+        self.assertIsInstance(unconfirmed_deposits, list)
+
 if __name__ == '__main__':
     unittest.main()
