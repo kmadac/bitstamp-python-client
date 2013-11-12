@@ -4,6 +4,7 @@ import requests
 import time
 import hmac
 import hashlib
+import sys
 
 class public():
     def __init__(self, proxydict=None):
@@ -78,7 +79,12 @@ class trading():
         params = {}
         params['key'] = self.key
         msg = str(self.nonce) + self.username + self.key
-        signature = hmac.new(self.secret, msg=msg, digestmod=hashlib.sha256).hexdigest().upper()
+
+        if sys.version_info.major == 2:
+            signature = hmac.new(self.secret, msg=msg, digestmod=hashlib.sha256).hexdigest().upper()
+        else:
+            signature = hmac.new(str.encode(self.secret), msg=str.encode(msg), digestmod=hashlib.sha256).hexdigest()\
+                .upper()
         params['signature'] = signature
         params['nonce'] = self.nonce
         self.nonce += 1
