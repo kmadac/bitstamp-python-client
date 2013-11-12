@@ -1,8 +1,9 @@
 bitstamp-python-client
 ======================
 
-Python package to communicate with bitstamp.net API
-Compatible with Python v2 and v3.3 and higher
+Python package to communicate with bitstamp.net API.
+
+Compatible with Python v2 and v3.3 and higher.
 
 ## Overview ##
 
