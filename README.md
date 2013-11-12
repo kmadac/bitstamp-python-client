@@ -40,6 +40,16 @@ https://www.bitstamp.net/api/
     bs_client_trading = bitstamp.client.trading(user='999999', key='xxx', secret='xxx')
     account_balance = bs_client_trading.account_ballance()
 
+    # Dictionary result
+    { u'btc_reserved': u'0',
+      u'fee': u'0.5000',
+      u'btc_available': u'2.30856098',
+      u'usd_reserved': u'0',
+      u'btc_balance': u'2.30856098',
+      u'usd_balance': u'114.64',
+      u'usd_available': u'114.64'
+    }
+
 ### If this code is usable for you, here is my wallet id where you can contribute to my work with few micro BCs: ###
 
 ## 159bihAxJTKNsJSvCxYgAHKd8UX7kJugUQ ##
