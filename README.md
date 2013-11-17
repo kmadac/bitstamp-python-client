@@ -38,8 +38,8 @@ import bitstamp.client
 bs_client_public = bitstamp.client.public()
 ticker = bs_client_public.ticker()
 
-bs_client_trading = bitstamp.client.trading(user='999999', key='xxx', secret='xxx')
-account_balance = bs_client_trading.account_ballance()
+bs_client_trading = bitstamp.client.trading(username='999999', key='xxx', secret='xxx')
+account_balance = bs_client_trading.account_balance()
 
 # Dictionary result
 { u'btc_reserved': u'0',
