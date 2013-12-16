@@ -55,3 +55,7 @@ account_balance = bs_client_trading.account_balance()
 ### If this code is usable for you, here is my wallet id where you can contribute to my work with few micro BCs: ###
 
 ## 159bihAxJTKNsJSvCxYgAHKd8UX7kJugUQ ##
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kmadac/bitstamp-python-client/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
