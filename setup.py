@@ -1,13 +1,13 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
-    name='TradingBitStamp',
-    version='1',
+    name='BitstampClient',
+    version='2.0',
+    description='Bitstamp API python implementation',
     packages=['bitstamp'],
     url='',
     license='',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
-    description='Bitstamp API python implementation',
-    requires=['requests']
+    install_requires=['requests'],
 )
