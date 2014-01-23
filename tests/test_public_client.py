@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import bitstamp.client
 import mock
@@ -69,7 +70,14 @@ class PublicTests(unittest.TestCase):
 class BackwardsCompatPublicTests(unittest.TestCase):
 
     def setUp(self):
-        self.client = bitstamp.client.public()
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            self.client = bitstamp.client.public()
+
+    def test_deprecation_warning(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            self.assertRaises(DeprecationWarning, bitstamp.client.public)
 
     def test_bad_response(self):
         response = FakeResponse(b'''{"error": "something went wrong"}''')

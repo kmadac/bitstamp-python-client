@@ -1,8 +1,8 @@
 from functools import wraps
 import hmac
 import hashlib
-import sys
 import time
+import warnings
 
 import requests
 
@@ -12,6 +12,9 @@ class BitstampError(Exception):
 
 
 class BaseClient(object):
+    """
+    A base client for the
+    """
     api_url = 'https://www.bitstamp.net/api/'
     exception_on_error = True
 
@@ -19,18 +22,34 @@ class BaseClient(object):
         self.proxydict = proxydict
 
     def _get(self, *args, **kwargs):
+        """
+        Make a GET request.
+        """
         return self._request(requests.get, *args, **kwargs)
 
     def _post(self, *args, **kwargs):
+        """
+        Make a POST request.
+        """
         data = self._default_data()
         data.update(kwargs.get('data') or {})
         kwargs['data'] = data
         return self._request(requests.post, *args, **kwargs)
 
     def _default_data(self):
+        """
+        Default data for a POST request.
+        """
         return {}
 
     def _request(self, func, url, *args, **kwargs):
+        """
+        Make a generic request, adding in any proxy defined by the instance.
+
+        Raises a ``requests.HTTPError`` if the response status isn't 200, and
+        raises a :class:`BitstampError` if the response contains a json encoded
+        error message.
+        """
         url = self.api_url + url
         response = func(url, *args, **kwargs)
 
@@ -86,6 +105,10 @@ class Public(BaseClient):
 class Trading(Public):
 
     def __init__(self, username, key, secret, *args, **kwargs):
+        """
+        Stores the username, key, and secret which is used when making POST
+        requests to Bitstamp.
+        """
         super(Trading, self).__init__(
             username=username, key=key, secret=secret, *args, **kwargs)
         self.username = username
@@ -94,6 +117,10 @@ class Trading(Public):
         self.nonce = int(time.time())
 
     def _default_data(self, *args, **kwargs):
+        """
+        Generate a one-time signature and other data required to send a secure
+        POST request to the Bitstamp API.
+        """
         data = super(Trading, self)._default_data(*args, **kwargs)
         data['key'] = self.key
         msg = str(self.nonce) + self.username + self.key
@@ -107,6 +134,10 @@ class Trading(Public):
         return data
 
     def _expect_true(self, response):
+        """
+        A shortcut that raises a :class:`BitstampError` if the response didn't
+        just contain the text 'true'.
+        """
         if response.text == u'true':
             return True
         raise BitstampError("Unexpected response")
@@ -245,18 +276,39 @@ class Trading(Public):
 
 # Backwards compatibility
 class BackwardsCompat(object):
+    """
+    Version 1 used lower case class names that didn't raise an exception when
+    Bitstamp returned a response indicating an error had occured.
+
+    Instead, it returned a tuple containing ``(False, 'The error message')``.
+    """
     wrapped_class = None
 
     def __init__(self, *args, **kwargs):
+        """
+        Instanciate the wrapped class.
+        """
         self.wrapped = self.wrapped_class(*args, **kwargs)
+        class_name = self.__class__.__name__
+        warnings.warn(
+            "Use the {} class rather than the deprecated {} one".format(
+                class_name.title(), class_name),
+            DeprecationWarning, stacklevel=2)
 
     def __getattr__(self, name):
+        """
+        Return the wrapped attribute. If it's a callable then return the error
+        tuple when appropriate.
+        """
         attr = getattr(self.wrapped, name)
         if not callable(attr):
             return attr
 
         @wraps(attr)
         def wrapped_callable(*args, **kwargs):
+            """
+            Catch ``BitstampError`` and replace with the tuple error pair.
+            """
             try:
                 return attr(*args, **kwargs)
             except BitstampError as e:
@@ -266,8 +318,14 @@ class BackwardsCompat(object):
 
 
 class public(BackwardsCompat):
+    """
+    Deprecated version 1 client. Use :class:`Public` instead.
+    """
     wrapped_class = Public
 
 
 class trading(BackwardsCompat):
+    """
+    Deprecated version 1 client. Use :class:`Trading` instead.
+    """
     wrapped_class = Trading
