@@ -10,7 +10,7 @@ from .fake_response import FakeResponse
 class TradingTests(unittest.TestCase):
 
     def setUp(self):
-        self.client = bitstamp.client.Trading('user', 'key', 'secret')
+        self.client = bitstamp.client.Trading('USERNAME', 'KEY', 'SECRET')
 
     def test_bad_response(self):
         response = FakeResponse(b'''{"error": "something went wrong"}''')
@@ -27,6 +27,16 @@ class TradingTests(unittest.TestCase):
         response = FakeResponse(status_code=500)
         with mock.patch('requests.post', return_value=response):
             self.assertRaises(requests.HTTPError, self.client.account_balance)
+
+    def test_signing(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response) as mocker:
+            self.client._post('test')
+        kwargs = mocker.call_args[1]
+        self.assertIn('data', kwargs)
+        self.assertIn('nonce', kwargs['data'])
+        self.assertIn('signature', kwargs['data'])
+        self.assertEqual(kwargs['data'].get('key'), 'KEY')
 
     def test_account_balance(self):
         response = FakeResponse(b'''{

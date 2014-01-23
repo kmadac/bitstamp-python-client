@@ -22,7 +22,9 @@ class BaseClient(object):
         return self._request(requests.get, *args, **kwargs)
 
     def _post(self, *args, **kwargs):
-        kwargs['data'] = self._default_data().update(kwargs.get('data') or {})
+        data = self._default_data()
+        data.update(kwargs.get('data') or {})
+        kwargs['data'] = data
         return self._request(requests.post, *args, **kwargs)
 
     def _default_data(self):
