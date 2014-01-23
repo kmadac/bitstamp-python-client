@@ -83,7 +83,7 @@ class Public(BaseClient):
         return self._get("eur_usd/").json()
 
 
-class Trading(BaseClient):
+class Trading(Public):
 
     def __init__(self, username, key, secret, *args, **kwargs):
         super(Trading, self).__init__(

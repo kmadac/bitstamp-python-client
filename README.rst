@@ -38,15 +38,18 @@ Usage
 
 Here's a quick example of usage::
 
-	>>> import bitstamp.client
+    >>> import bitstamp.client
 
-	>>> public_client = bitstamp.client.Public()
-	>>> print(public_client.ticker()['volume'])
+    >>> public_client = bitstamp.client.Public()
+    >>> print(public_client.ticker()['volume'])
     8700.01208078
 
-	>>> trading_client = bitstamp.client.Trading(username='999999', key='xxx', secret='xxx')
-	>>> print(trading.account_balance()['fee'])
-	0.5000
+    >>> trading_client = bitstamp.client.Trading(username='999999', key='xxx', secret='xxx')
+    >>> print(trading_client.account_balance()['fee'])
+    0.5000
+    >>> print(trading_client.ticker()['volume'])   # Still has access to public methods
+    8700.01208078
+
 
 
 How to activate a new API key
