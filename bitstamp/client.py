@@ -13,7 +13,8 @@ class BitstampError(Exception):
 
 class BaseClient(object):
     """
-    A base client for the
+    A base class for the API Client methods that handles interaction with
+    the requests library.
     """
     api_url = 'https://www.bitstamp.net/api/'
     exception_on_error = True
@@ -176,7 +177,7 @@ class Trading(Public):
 
     def open_orders(self):
         """
-        Returns JSON list of open orders. Each order is represented as
+        Returns JSON list of open orders. Each order is represented as a
         dictionary.
         """
         return self._post("open_orders/").json()
@@ -209,14 +210,16 @@ class Trading(Public):
 
     def check_bitstamp_code(self, code):
         """
-        Returns JSON dictionary containing USD and BTC amount included in given bitstamp code.
+        Returns JSON dictionary containing USD and BTC amount included in given
+        bitstamp code.
         """
         data = {'code': code}
         return self._post("check_code/", data=data).json()
 
     def redeem_bitstamp_code(self, code):
         """
-        Returns JSON dictionary containing USD and BTC amount added to user's account.
+        Returns JSON dictionary containing USD and BTC amount added to user's
+        account.
         """
         data = {'code': code}
         return self._post("redeem_code/", data=data).json()
@@ -261,7 +264,7 @@ class Trading(Public):
 
     def ripple_withdrawal(self, amount, address, currency):
         """
-        Returns true if successful
+        Returns true if successful.
         """
         data = {'amount': amount, 'address': address, 'currency': currency}
         response = requests.post("ripple_withdrawal/", data=data)
@@ -269,7 +272,7 @@ class Trading(Public):
 
     def ripple_deposit_address(self):
         """
-        Returns ripple deposit address as unicode string
+        Returns ripple deposit address as unicode string.
         """
         return requests.post("ripple_address/").text
 
