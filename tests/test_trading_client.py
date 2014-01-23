@@ -68,33 +68,45 @@ class TradingTests(unittest.TestCase):
             result = self.client.bitcoin_deposit_address()
         self.assertEqual(result, '1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA')
 
-    # def test_buy_cancel_order(self):
-    #     order_buy = self.client.buy_limit_order(1, 10)
-    #     print(order_buy)
-    #     self.assertIn('id', order_buy)
-    #     order_id = order_buy['id']
-    #     cancel_order = self.client.cancel_order(order_id)
-    #     print(cancel_order)
-    #     self.assertEqual(cancel_order, True)
+    def test_buy_limit_order(self):
+        response = FakeResponse(b'''
+            {"amount": "0.1",
+             "datetime": "2014-01-22 01:20:23.226788",
+             "id": 55507211,
+             "price": "90",
+             "type": 0}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.buy_limit_order('0.1', '90')
+        self.assertIsInstance(result, dict)
 
-    # def test_sell_cancel_order(self):
-    #     order_sell = self.client.sell_limit_order(1, 500)
-    #     print(order_sell)
-    #     self.assertIn('id', order_sell)
-    #     order_id = order_sell['id']
-    #     cancel_order = self.client.cancel_order(order_id)
-    #     print(cancel_order)
-    #     self.assertEqual(cancel_order, True)
+    def test_sell_limit_order(self):
+        response = FakeResponse(b'''
+            {"amount": "1",
+             "datetime": "2014-01-22 02:20:23.226788",
+             "id": 55507212,
+             "price": "9000",
+             "type": 1}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.sell_limit_order('1', '9000')
+        self.assertIsInstance(result, dict)
 
-    # def test_withdrawal_requests(self):
-    #     withdrawal_requests = self.client.withdrawal_requests()
-    #     print(withdrawal_requests)
-    #     self.assertIsInstance(withdrawal_requests, list)
+    def test_cancel_order(self):
+        response = FakeResponse(b'true')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_order('15807214')
+        self.assertTrue(result)
 
-    # def test_unconfirmed_bitcoin_deposits(self):
-    #     unconfirmed_deposits = self.client.unconfirmed_bitcoin_deposits()
-    #     print(unconfirmed_deposits)
-    #     self.assertIsInstance(unconfirmed_deposits, list)
+    def test_withdrawal_requests(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.withdrawal_requests()
+        self.assertIsInstance(result, list)
+
+    def test_unconfirmed_bitcoin_deposits(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.unconfirmed_bitcoin_deposits()
+        self.assertIsInstance(result, list)
 
 
 if __name__ == '__main__':
