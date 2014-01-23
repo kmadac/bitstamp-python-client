@@ -19,18 +19,12 @@ class implements are not bound to bitstamp user account.
 Description of API: https://www.bitstamp.net/api/
 
 
-Package requirements
-====================
+Install
+=======
 
-* requests (``pip install requests``)
+Install from git::
 
-
-Install from Git
-================
-
-::
-
-    sudo pip install git+git://github.com/kmadac/bitstamp-python-client.git
+    pip install git+git://github.com/kmadac/bitstamp-python-client.git
 
 
 Usage
@@ -44,10 +38,11 @@ Here's a quick example of usage::
     >>> print(public_client.ticker()['volume'])
     8700.01208078
 
-    >>> trading_client = bitstamp.client.Trading(username='999999', key='xxx', secret='xxx')
+    >>> trading_client = bitstamp.client.Trading(
+    ...     username='999999', key='xxx', secret='xxx')
     >>> print(trading_client.account_balance()['fee'])
     0.5000
-    >>> print(trading_client.ticker()['volume'])   # Still has access to public methods
+    >>> print(trading_client.ticker()['volume'])   # Can access public methods
     8700.01208078
 
 
