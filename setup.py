@@ -1,11 +1,11 @@
 from distutils.core import setup
 
 setup(
-    name='TradingBitStamp',
+    name='BitstampClient',
     version='1',
     packages=['bitstamp'],
     url='',
-    license='',
+    license='MIT',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
     description='Bitstamp API python implementation',
