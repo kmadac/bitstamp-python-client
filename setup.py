@@ -9,6 +9,5 @@ setup(
     license='MIT',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
-    description='Bitstamp API python implementation',
     install_requires=['requests'],
 )
