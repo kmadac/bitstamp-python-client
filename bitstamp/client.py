@@ -115,7 +115,27 @@ class Trading(Public):
         self.username = username
         self.key = key
         self.secret = secret
-        self.nonce = int(time.time())
+
+    @property
+    def nonce(self):
+        """
+        Get a unique nonce for the bitstamp API.
+
+        This integer must always be increasing, so use the current unix time.
+        Every time this variable is requested, it automatically increments to
+        allow for more than one API request per second.
+
+        This isn't a thread-safe function however, so you should only rely on a
+        single thread if you have a high level of concurrent API requests in
+        your application.
+        """
+        nonce = getattr(self, '_nonce', 0)
+        if nonce:
+            nonce += 1
+        # If the unix time is greater though, use that instead (helps low
+        # concurrency multi-threaded apps always call with the largest nonce).
+        self._nonce = max(int(time.time()), nonce)
+        return self._nonce
 
     def _default_data(self, *args, **kwargs):
         """
@@ -131,7 +151,6 @@ class Trading(Public):
             digestmod=hashlib.sha256).hexdigest().upper()
         data['signature'] = signature
         data['nonce'] = self.nonce
-        self.nonce += 1
         return data
 
     def _expect_true(self, response):

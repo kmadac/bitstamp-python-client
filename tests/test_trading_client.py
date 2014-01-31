@@ -23,6 +23,16 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             self.assertRaises(requests.HTTPError, self.client.account_balance)
 
+    def test_nonce(self):
+        # Each call to .nonce increases it.
+        with mock.patch('time.time', return_value=1):
+            self.assertEqual(self.client.nonce, 1)
+            self.assertEqual(self.client.nonce, 2)
+            self.assertEqual(self.client.nonce, 3)
+        # But if the unix time is greater, use that instead.
+        with mock.patch('time.time', return_value=10):
+            self.assertEqual(self.client.nonce, 10)
+
     def test_500_response(self):
         response = FakeResponse(status_code=500)
         with mock.patch('requests.post', return_value=response):
