@@ -1,13 +1,13 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='BitstampClient',
-    version='1',
+    version='2.0',
+    description='Bitstamp API python implementation',
     packages=['bitstamp'],
     url='',
     license='MIT',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
-    description='Bitstamp API python implementation',
-    requires=['requests']
+    install_requires=['requests'],
 )

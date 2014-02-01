@@ -1,0 +1,123 @@
+import unittest
+
+import bitstamp.client
+import mock
+import requests
+
+from .fake_response import FakeResponse
+
+
+class TradingTests(unittest.TestCase):
+
+    def setUp(self):
+        self.client = bitstamp.client.Trading('USERNAME', 'KEY', 'SECRET')
+
+    def test_bad_response(self):
+        response = FakeResponse(b'''{"error": "something went wrong"}''')
+        with mock.patch('requests.post', return_value=response):
+            self.assertRaises(
+                bitstamp.client.BitstampError, self.client.account_balance)
+
+    def test_404_response(self):
+        response = FakeResponse(status_code=404)
+        with mock.patch('requests.post', return_value=response):
+            self.assertRaises(requests.HTTPError, self.client.account_balance)
+
+    def test_nonce(self):
+        # Each call to .nonce increases it.
+        with mock.patch('time.time', return_value=1):
+            self.assertEqual(self.client.nonce, 1)
+            self.assertEqual(self.client.nonce, 2)
+            self.assertEqual(self.client.nonce, 3)
+        # But if the unix time is greater, use that instead.
+        with mock.patch('time.time', return_value=10):
+            self.assertEqual(self.client.nonce, 10)
+
+    def test_500_response(self):
+        response = FakeResponse(status_code=500)
+        with mock.patch('requests.post', return_value=response):
+            self.assertRaises(requests.HTTPError, self.client.account_balance)
+
+    def test_signing(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response) as mocker:
+            self.client._post('test')
+        kwargs = mocker.call_args[1]
+        self.assertIn('data', kwargs)
+        self.assertIn('nonce', kwargs['data'])
+        self.assertIn('signature', kwargs['data'])
+        self.assertEqual(kwargs['data'].get('key'), 'KEY')
+
+    def test_account_balance(self):
+        response = FakeResponse(b'''{
+            "usd_balance": "100.00",
+            "btc_balance": "2.001",
+            "usd_reserved": "40",
+            "btc_reserved": "1",
+            "usd_available": "60.00",
+            "btc_available": "1.001"}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.account_balance()
+        self.assertIsInstance(result, dict)
+
+    def test_user_transactions(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.user_transactions()
+        self.assertIsInstance(result, list)
+
+    def test_open_orders(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.open_orders()
+        self.assertIsInstance(result, list)
+
+    def test_bitcoin_deposit_address(self):
+        response = FakeResponse(b'"1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA"')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.bitcoin_deposit_address()
+        self.assertEqual(result, '1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA')
+
+    def test_buy_limit_order(self):
+        response = FakeResponse(b'''
+            {"amount": "0.1",
+             "datetime": "2014-01-22 01:20:23.226788",
+             "id": 55507211,
+             "price": "90",
+             "type": 0}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.buy_limit_order('0.1', '90')
+        self.assertIsInstance(result, dict)
+
+    def test_sell_limit_order(self):
+        response = FakeResponse(b'''
+            {"amount": "1",
+             "datetime": "2014-01-22 02:20:23.226788",
+             "id": 55507212,
+             "price": "9000",
+             "type": 1}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.sell_limit_order('1', '9000')
+        self.assertIsInstance(result, dict)
+
+    def test_cancel_order(self):
+        response = FakeResponse(b'true')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_order('15807214')
+        self.assertTrue(result)
+
+    def test_withdrawal_requests(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.withdrawal_requests()
+        self.assertIsInstance(result, list)
+
+    def test_unconfirmed_bitcoin_deposits(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.unconfirmed_bitcoin_deposits()
+        self.assertIsInstance(result, list)
+
+
+if __name__ == '__main__':
+    unittest.main()
