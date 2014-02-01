@@ -63,6 +63,3 @@ How to activate a new API key
 5. Click 'Activate'
 
 6. Goto your Inbox and click on link sent by Bitstamp to activate this API key
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kmadac/bitstamp-python-client/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
