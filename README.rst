@@ -63,3 +63,10 @@ How to activate a new API key
 5. Click 'Activate'
 
 6. Goto your Inbox and click on link sent by Bitstamp to activate this API key
+
+
+Class diagram
+=============
+.. image:: https://raw.github.com/kmadac/bitstamp-python-client/master/class_diagram.png
+   :alt: Class diagram
+   :align: center
