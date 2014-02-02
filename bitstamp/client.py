@@ -144,13 +144,14 @@ class Trading(Public):
         """
         data = super(Trading, self)._default_data(*args, **kwargs)
         data['key'] = self.key
-        msg = str(self.nonce) + self.username + self.key
+        nonce = self.nonce
+        msg = str(nonce) + self.username + self.key
 
         signature = hmac.new(
             self.secret.encode('utf-8'), msg=msg.encode('utf-8'),
             digestmod=hashlib.sha256).hexdigest().upper()
         data['signature'] = signature
-        data['nonce'] = self.nonce
+        data['nonce'] = nonce
         return data
 
     def _expect_true(self, response):
