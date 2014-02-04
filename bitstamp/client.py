@@ -116,8 +116,7 @@ class Trading(Public):
         self.key = key
         self.secret = secret
 
-    @property
-    def nonce(self):
+    def get_nonce(self):
         """
         Get a unique nonce for the bitstamp API.
 
@@ -144,7 +143,7 @@ class Trading(Public):
         """
         data = super(Trading, self)._default_data(*args, **kwargs)
         data['key'] = self.key
-        nonce = self.nonce
+        nonce = self.get_nonce()
         msg = str(nonce) + self.username + self.key
 
         signature = hmac.new(

@@ -3,6 +3,8 @@ import unittest
 import bitstamp.client
 import mock
 import requests
+import hmac
+import hashlib
 
 from .fake_response import FakeResponse
 
@@ -10,7 +12,10 @@ from .fake_response import FakeResponse
 class TradingTests(unittest.TestCase):
 
     def setUp(self):
-        self.client = bitstamp.client.Trading('USERNAME', 'KEY', 'SECRET')
+        self.username = 'USERNAME'
+        self.key = 'KEY'
+        self.secret = 'SECRET'
+        self.client = bitstamp.client.Trading(self.username, self.key, self.secret)
 
     def test_bad_response(self):
         response = FakeResponse(b'''{"error": "something went wrong"}''')
@@ -26,12 +31,12 @@ class TradingTests(unittest.TestCase):
     def test_nonce(self):
         # Each call to .nonce increases it.
         with mock.patch('time.time', return_value=1):
-            self.assertEqual(self.client.nonce, 1)
-            self.assertEqual(self.client.nonce, 2)
-            self.assertEqual(self.client.nonce, 3)
+            self.assertEqual(self.client.get_nonce(), 1)
+            self.assertEqual(self.client.get_nonce(), 2)
+            self.assertEqual(self.client.get_nonce(), 3)
         # But if the unix time is greater, use that instead.
         with mock.patch('time.time', return_value=10):
-            self.assertEqual(self.client.nonce, 10)
+            self.assertEqual(self.client.get_nonce(), 10)
 
     def test_500_response(self):
         response = FakeResponse(status_code=500)
@@ -118,6 +123,16 @@ class TradingTests(unittest.TestCase):
             result = self.client.unconfirmed_bitcoin_deposits()
         self.assertIsInstance(result, list)
 
+    def test_default_data(self):
+        """
+        GitHub Issue #9
+        """
+        ret_data = self.client._default_data()
+        msg = str(ret_data['nonce']) + self.username + self.key
+        signature = hmac.new(
+            self.secret.encode('utf-8'), msg=msg.encode('utf-8'),
+            digestmod=hashlib.sha256).hexdigest().upper()
+        self.assertEqual(signature, ret_data['signature'])
 
 if __name__ == '__main__':
     unittest.main()
