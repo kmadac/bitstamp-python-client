@@ -22,6 +22,9 @@ Description of API: https://www.bitstamp.net/api/
 Install
 =======
 
+Install from PyPi::
+    pip install BitstampClient
+
 Install from git::
 
     pip install git+git://github.com/kmadac/bitstamp-python-client.git
