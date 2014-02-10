@@ -209,7 +209,7 @@ class Trading(Public):
         BitstampError.
         """
         data = {'id': order_id}
-        return self._post("cancel_order/", data=data)
+        return self._post("cancel_order/", data=data).json()
 
     def buy_limit_order(self, amount, price):
         """
