@@ -23,6 +23,7 @@ Install
 =======
 
 Install from PyPi::
+
     pip install BitstampClient
 
 Install from git::
