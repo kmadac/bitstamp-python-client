@@ -255,7 +255,7 @@ class Trading(Public):
         Send bitcoins to another bitcoin wallet specified by address.
         """
         data = {'amount': amount, 'address': address}
-        response = self._post("bitcoin_withdrawal/", data=data)
+        response = self._post("bitcoin_withdrawal/", data=data).json()
         return self._expect_true(response)
 
     def bitcoin_deposit_address(self):
