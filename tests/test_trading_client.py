@@ -134,5 +134,12 @@ class TradingTests(unittest.TestCase):
             digestmod=hashlib.sha256).hexdigest().upper()
         self.assertEqual(signature, ret_data['signature'])
 
+    def test_bitcoin_withdrawal(self):
+        response = FakeResponse(b'''{"id": "1"}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.unconfirmed_bitcoin_deposits()
+        print(result)
+        self.assertIsInstance(result, dict)
+
 if __name__ == '__main__':
     unittest.main()
