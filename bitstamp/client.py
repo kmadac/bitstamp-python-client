@@ -156,7 +156,7 @@ class Trading(Public):
     def _expect_true(self, response):
         """
         A shortcut that raises a :class:`BitstampError` if the response didn't
-        just contain the text 'true'.
+        just contain the text _expect_true'true'.
         """
         if response.text == u'true':
             return True
@@ -255,8 +255,8 @@ class Trading(Public):
         Send bitcoins to another bitcoin wallet specified by address.
         """
         data = {'amount': amount, 'address': address}
-        response = self._post("bitcoin_withdrawal/", data=data).json()
-        return self._expect_true(response)
+        response = self._post("bitcoin_withdrawal/", data=data)
+        return response.json()
 
     def bitcoin_deposit_address(self):
         """
