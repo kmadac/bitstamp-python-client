@@ -156,7 +156,7 @@ class Trading(Public):
     def _expect_true(self, response):
         """
         A shortcut that raises a :class:`BitstampError` if the response didn't
-        just contain the text _expect_true'true'.
+        just contain the text 'true'.
         """
         if response.text == u'true':
             return True
