@@ -15,10 +15,17 @@ class TradingTests(unittest.TestCase):
         self.username = 'USERNAME'
         self.key = 'KEY'
         self.secret = 'SECRET'
-        self.client = bitstamp.client.Trading(self.username, self.key, self.secret)
+        self.client = bitstamp.client.Trading(
+            self.username, self.key, self.secret)
 
     def test_bad_response(self):
         response = FakeResponse(b'''{"error": "something went wrong"}''')
+        with mock.patch('requests.post', return_value=response):
+            self.assertRaises(
+                bitstamp.client.BitstampError, self.client.account_balance)
+
+    def test_nonjson_response(self):
+        response = FakeResponse(b'''Hey wait, this isn't JSON!''')
         with mock.patch('requests.post', return_value=response):
             self.assertRaises(
                 bitstamp.client.BitstampError, self.client.account_balance)
@@ -138,8 +145,8 @@ class TradingTests(unittest.TestCase):
         response = FakeResponse(b'''{"id": "1"}''')
         with mock.patch('requests.post', return_value=response):
             result = self.client.unconfirmed_bitcoin_deposits()
-        print(result)
         self.assertIsInstance(result, dict)
+
 
 if __name__ == '__main__':
     unittest.main()
