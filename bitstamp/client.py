@@ -51,20 +51,30 @@ class BaseClient(object):
         raises a :class:`BitstampError` if the response contains a json encoded
         error message.
         """
+        return_json = kwargs.pop('return_json', False)
         url = self.api_url + url
         response = func(url, *args, **kwargs)
 
-        if not 'proxies' in kwargs:
+        if 'proxies' not in kwargs:
             kwargs['proxies'] = self.proxydict
 
         # Check for error, raising an exception if appropriate.
         response.raise_for_status()
 
-        formatted_response = response.json()
-        if isinstance(formatted_response, dict):
-            error = formatted_response.get('error')
+        try:
+            json_response = response.json()
+        except ValueError:
+            json_response = None
+        if isinstance(json_response, dict):
+            error = json_response.get('error')
             if error:
                 raise BitstampError(error)
+
+        if return_json:
+            if json_response is None:
+                raise BitstampError(
+                    "Could not decode json for: " + response.text)
+            return json_response
 
         return response
 
@@ -75,7 +85,7 @@ class Public(BaseClient):
         """
         Returns dictionary.
         """
-        return self._get("ticker/").json()
+        return self._get("ticker/", return_json=True)
 
     def order_book(self, group=True):
         """
@@ -85,14 +95,14 @@ class Public(BaseClient):
         of price and amount.
         """
         params = {'group': group}
-        return self._get("order_book/", params=params).json()
+        return self._get("order_book/", params=params, return_json=True)
 
     def transactions(self, timedelta_secs=86400):
         """
         Returns transactions for the last 'timedelta' seconds.
         """
         params = {'timedelta': timedelta_secs}
-        return self._get("transactions/", params=params).json()
+        return self._get("transactions/", params=params, return_json=True)
 
     def conversion_rate_usd_eur(self):
         """
@@ -100,7 +110,7 @@ class Public(BaseClient):
 
             {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
         """
-        return self._get("eur_usd/").json()
+        return self._get("eur_usd/", return_json=True)
 
 
 class Trading(Public):
@@ -174,7 +184,7 @@ class Trading(Public):
              u'usd_balance': u'114.64',
              u'usd_available': u'114.64'}
         """
-        return self._post("balance/").json()
+        return self._post("balance/", return_json=True)
 
     def user_transactions(self, offset=0, limit=100, descending=True):
         """
@@ -192,14 +202,14 @@ class Trading(Public):
             'limit': limit,
             'sort': 'desc' if descending else 'asc',
         }
-        return self._post("user_transactions/", data=data).json()
+        return self._post("user_transactions/", data=data, return_json=True)
 
     def open_orders(self):
         """
         Returns JSON list of open orders. Each order is represented as a
         dictionary.
         """
-        return self._post("open_orders/").json()
+        return self._post("open_orders/", return_json=True)
 
     def cancel_order(self, order_id):
         """
@@ -209,7 +219,7 @@ class Trading(Public):
         BitstampError.
         """
         data = {'id': order_id}
-        return self._post("cancel_order/", data=data).json()
+        return self._post("cancel_order/", data=data, return_json=True)
 
     def buy_limit_order(self, amount, price):
         """
@@ -217,14 +227,14 @@ class Trading(Public):
         """
         data = {'amount': amount, 'price': price}
 
-        return self._post("buy/", data=data).json()
+        return self._post("buy/", data=data, return_json=True)
 
     def sell_limit_order(self, amount, price):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
-        return self._post("sell/", data=data).json()
+        return self._post("sell/", data=data, return_json=True)
 
     def check_bitstamp_code(self, code):
         """
@@ -232,7 +242,7 @@ class Trading(Public):
         bitstamp code.
         """
         data = {'code': code}
-        return self._post("check_code/", data=data).json()
+        return self._post("check_code/", data=data, return_json=True)
 
     def redeem_bitstamp_code(self, code):
         """
@@ -240,7 +250,7 @@ class Trading(Public):
         account.
         """
         data = {'code': code}
-        return self._post("redeem_code/", data=data).json()
+        return self._post("redeem_code/", data=data, return_json=True)
 
     def withdrawal_requests(self):
         """
@@ -248,22 +258,20 @@ class Trading(Public):
 
         Each request is represented as a dictionary.
         """
-        return self._post("withdrawal_requests/").json()
+        return self._post("withdrawal_requests/", return_json=True)
 
     def bitcoin_withdrawal(self, amount, address):
         """
         Send bitcoins to another bitcoin wallet specified by address.
         """
         data = {'amount': amount, 'address': address}
-        response = self._post("bitcoin_withdrawal/", data=data)
-        return response.json()
+        return self._post("bitcoin_withdrawal/", data=data, return_json=True)
 
     def bitcoin_deposit_address(self):
         """
         Returns bitcoin deposit address as unicode string
         """
-        response = self._post("bitcoin_deposit_address/")
-        return response.json()
+        return self._post("bitcoin_deposit_address/", return_json=True)
 
     def unconfirmed_bitcoin_deposits(self):
         """
@@ -278,7 +286,7 @@ class Trading(Public):
         confirmations
           number of confirmations
         """
-        return self._post("unconfirmed_btc/").json()
+        return self._post("unconfirmed_btc/", return_json=True)
 
     def ripple_withdrawal(self, amount, address, currency):
         """
