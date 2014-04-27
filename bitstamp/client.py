@@ -11,6 +11,15 @@ class BitstampError(Exception):
     pass
 
 
+class TransRange(object):
+    """
+    Enum like object used in transaction method to specify time range
+    from which to get list of transactions
+    """
+    HOUR = 'hour'
+    MINUTE = 'minute'
+
+
 class BaseClient(object):
     """
     A base class for the API Client methods that handles interaction with
@@ -97,11 +106,12 @@ class Public(BaseClient):
         params = {'group': group}
         return self._get("order_book/", params=params, return_json=True)
 
-    def transactions(self, timedelta_secs=86400):
+    def transactions(self, time=TransRange.HOUR):
         """
         Returns transactions for the last 'timedelta' seconds.
+        Paramater time is specified by one of two values of TransRange class.
         """
-        params = {'timedelta': timedelta_secs}
+        params = {'time': time}
         return self._get("transactions/", params=params, return_json=True)
 
     def conversion_rate_usd_eur(self):
