@@ -25,8 +25,7 @@ class BaseClient(object):
     A base class for the API Client methods that handles interaction with
     the requests library.
     """
-    api_url = {1: 'https://www.bitstamp.net/api/',
-               2: 'https://www.bitstamp.net/api/v2/'}
+    api_url = 'https://www.bitstamp.net/api/'
     exception_on_error = True
 
     def __init__(self, proxydict=None, *args, **kwargs):
@@ -53,7 +52,7 @@ class BaseClient(object):
         """
         return {}
 
-    def _request(self, func, url, version=1, *args, **kwargs):
+    def _request(self, func, url, *args, **kwargs):
         """
         Make a generic request, adding in any proxy defined by the instance.
 
@@ -62,7 +61,7 @@ class BaseClient(object):
         error message.
         """
         return_json = kwargs.pop('return_json', False)
-        url = self.api_url[version] + url
+        url = self.api_url + url
         response = func(url, *args, **kwargs)
 
         if 'proxies' not in kwargs:
