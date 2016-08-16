@@ -261,11 +261,13 @@ class Trading(Public):
         url = self._construct_url("open_orders/", base, quote)
         return self._post(url, return_json=True, version=2)
 
-    def order_status(self):
+    def order_status(self, order_id):
         """
-        Placeholder.
+        Returns dictionary.
         """
-        return True
+        data = {'id': order_id}
+        return self._post("order_status/", data=data, return_json=True,
+                          version=1)
 
     def cancel_order(self, order_id):
         """
@@ -373,17 +375,19 @@ class Trading(Public):
         """
         return requests.post("ripple_address/").text
 
-    def transfer_to_main(self):
+    def transfer_to_main(self, amount, currency, subaccount=None):
         """
-        Placeholder.
+        Returns dictionary with status.
         """
-        return True
+        return self._post("transfer_to_main/", data=data, return_json=True,
+                          version=2)
 
-    def transfer_from_main(self):
+    def transfer_from_main(self, amount, currency, subaccount=None):
         """
-        Placeholder.
+        Returns dictionary with status.
         """
-        return True
+        return self._post("transfer_from_main/", data=data, return_json=True,
+                          version=2)
 
 
 # Backwards compatibility
