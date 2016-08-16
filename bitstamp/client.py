@@ -93,12 +93,19 @@ class Public(BaseClient):
 
     def ticker(self, base="btc", quote="usd"):
         """
-        Returns dictionary. Calls the v2 API with backwards compatibility.
+        Returns dictionary.
         """
         url = "ticker/" + base.lower() + quote.lower() + "/"
         return self._get(url, return_json=True, version=2)
 
-    def order_book(self, group=True):
+    def ticker_hour(self, base="btc", quote="usd"):
+        """
+        Returns dictionary of the average ticker of the past hour.
+        """
+        url = "ticker_hour/" + base.lower() + quote.lower() + "/"
+        return self._get(url, return_json=True, version=2)
+
+    def order_book(self, group=True, base="btc", quote="usd"):
         """
         Returns dictionary with "bids" and "asks".
 
@@ -106,15 +113,17 @@ class Public(BaseClient):
         of price and amount.
         """
         params = {'group': group}
-        return self._get("order_book/", params=params, return_json=True)
+        url = "order_book/" + base.lower() + quote.lower() + "/"
+        return self._get(url, params=params, return_json=True, version=2)
 
-    def transactions(self, time=TransRange.HOUR):
+    def transactions(self, time=TransRange.HOUR, base="btc", quote="usd"):
         """
         Returns transactions for the last 'timedelta' seconds.
-        Paramater time is specified by one of two values of TransRange class.
+        Parameter time is specified by one of two values of TransRange class.
         """
         params = {'time': time}
-        return self._get("transactions/", params=params, return_json=True)
+        url = "transactions/" + base.lower() + quote.lower() + "/"
+        return self._get(url, params=params, return_json=True, version=2)
 
     def conversion_rate_usd_eur(self):
         """
@@ -122,7 +131,7 @@ class Public(BaseClient):
 
             {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
         """
-        return self._get("eur_usd/", return_json=True)
+        return self._get("eur_usd/", return_json=True, version=1)
 
 
 class Trading(Public):
@@ -184,7 +193,7 @@ class Trading(Public):
             return True
         raise BitstampError("Unexpected response")
 
-    def account_balance(self):
+    def account_balance(self, base="btc", quote="usd"):
         """
         Returns dictionary::
 
@@ -196,7 +205,13 @@ class Trading(Public):
              u'usd_balance': u'114.64',
              u'usd_available': u'114.64'}
         """
-        return self._post("balance/", return_json=True)
+        if not base and not quote:
+            #There could be reasons not to set base and quote to None (or False),
+            #because the result then will contain the fees for all currency pairs
+            url = "balance/"
+        else:
+            url = "balance/" + base.lower() + quote.lower() + "/"
+        return self._post(url, return_json=True, version=2)
 
     def user_transactions(self, offset=0, limit=100, descending=True):
         """
@@ -223,6 +238,12 @@ class Trading(Public):
         """
         return self._post("open_orders/", return_json=True)
 
+    def order_status(self):
+        """
+        Placeholder.
+        """
+        return True
+
     def cancel_order(self, order_id):
         """
         Cancel the order specified by order_id.
@@ -232,6 +253,12 @@ class Trading(Public):
         """
         data = {'id': order_id}
         return self._post("cancel_order/", data=data, return_json=True)
+
+    def cancel_all_orders(self):
+        """
+        Placeholder.
+        """
+        return True
 
     def buy_limit_order(self, amount, price):
         """
@@ -313,6 +340,18 @@ class Trading(Public):
         Returns ripple deposit address as unicode string.
         """
         return requests.post("ripple_address/").text
+
+    def transfer_to_main(self):
+        """
+        Placeholder.
+        """
+        return True
+
+    def transfer_from_main(self):
+        """
+        Placeholder.
+        """
+        return True
 
 
 # Backwards compatibility
