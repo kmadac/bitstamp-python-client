@@ -386,14 +386,13 @@ class Trading(Public):
         return self._post("transfer_to_main/", data=data, return_json=True,
                           version=2)
 
-    def transfer_from_main(self, amount, currency, subaccount=None):
+    def transfer_from_main(self, amount, currency, subaccount):
         """
         Returns dictionary with status.
         """
         data = {'amount': amount,
-                'currency': currency}
-        if subaccount is not None:
-            data['subAccount'] = subaccount
+                'currency': currency,
+                'subAccount': subaccount}
         return self._post("transfer_from_main/", data=data, return_json=True,
                           version=2)
 
