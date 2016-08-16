@@ -379,6 +379,10 @@ class Trading(Public):
         """
         Returns dictionary with status.
         """
+        data = {'amount': amount,
+                'currency': currency}
+        if subaccount is not None:
+            data['subAccount'] = subaccount
         return self._post("transfer_to_main/", data=data, return_json=True,
                           version=2)
 
@@ -386,6 +390,10 @@ class Trading(Public):
         """
         Returns dictionary with status.
         """
+        data = {'amount': amount,
+                'currency': currency}
+        if subaccount is not None:
+            data['subAccount'] = subaccount
         return self._post("transfer_from_main/", data=data, return_json=True,
                           version=2)
 
@@ -402,7 +410,7 @@ class BackwardsCompat(object):
 
     def __init__(self, *args, **kwargs):
         """
-        Instanciate the wrapped class.
+        Instantiate the wrapped class.
         """
         self.wrapped = self.wrapped_class(*args, **kwargs)
         class_name = self.__class__.__name__
