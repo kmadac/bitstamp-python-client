@@ -53,6 +53,18 @@ class BaseClient(object):
         """
         return {}
 
+    def _construct_url(self, url, base, quote):
+        """
+        Adds the orderbook to the url if base and quote are specified.
+        """
+        #This condition allows for both None and False values
+        if not base and not quote:
+            return url
+        else:
+            #The join method is quicker than standard concatenation
+            url.join([base.lower(), quote.lower(), "/"])
+            return url
+
     def _request(self, func, url, version=1, *args, **kwargs):
         """
         Make a generic request, adding in any proxy defined by the instance.
@@ -95,14 +107,14 @@ class Public(BaseClient):
         """
         Returns dictionary.
         """
-        url = "ticker/" + base.lower() + quote.lower() + "/"
+        url = self._construct_url("ticker/", base, quote)
         return self._get(url, return_json=True, version=2)
 
     def ticker_hour(self, base="btc", quote="usd"):
         """
         Returns dictionary of the average ticker of the past hour.
         """
-        url = "ticker_hour/" + base.lower() + quote.lower() + "/"
+        url = self._construct_url("ticker_hour/", base, quote)
         return self._get(url, return_json=True, version=2)
 
     def order_book(self, group=True, base="btc", quote="usd"):
@@ -113,7 +125,7 @@ class Public(BaseClient):
         of price and amount.
         """
         params = {'group': group}
-        url = "order_book/" + base.lower() + quote.lower() + "/"
+        url = self._construct_url("order_book/", base, quote)
         return self._get(url, params=params, return_json=True, version=2)
 
     def transactions(self, time=TransRange.HOUR, base="btc", quote="usd"):
@@ -122,7 +134,7 @@ class Public(BaseClient):
         Parameter time is specified by one of two values of TransRange class.
         """
         params = {'time': time}
-        url = "transactions/" + base.lower() + quote.lower() + "/"
+        url = self._construct_url("transactions/", base, quote)
         return self._get(url, params=params, return_json=True, version=2)
 
     def conversion_rate_usd_eur(self):
@@ -203,40 +215,51 @@ class Trading(Public):
              u'usd_reserved': u'0',
              u'btc_balance': u'2.30856098',
              u'usd_balance': u'114.64',
-             u'usd_available': u'114.64'}
+             u'usd_available': u'114.64',
+             ---If base and quote were specified:
+             u'fee': u'',
+             ---If base and quote were not specified:
+             u'btcusd_fee': u'0.25',
+             u'btceur_fee': u'0.25',
+             u'eurusd_fee': u'0.20',
+             }
+            There could be reasons to set base and quote to None (or False),
+            because the result then will contain the fees for all currency pairs
+            For backwards compatibility this can not be the default however.
         """
-        if not base and not quote:
-            #There could be reasons not to set base and quote to None (or False),
-            #because the result then will contain the fees for all currency pairs
-            url = "balance/"
-        else:
-            url = "balance/" + base.lower() + quote.lower() + "/"
+        url = self._construct_url("balance/", base, quote)
         return self._post(url, return_json=True, version=2)
 
-    def user_transactions(self, offset=0, limit=100, descending=True):
+    def user_transactions(self, offset=0, limit=100, descending=True,
+                          base=None, quote=None):
         """
         Returns descending list of transactions. Every transaction (dictionary)
         contains::
 
             {u'usd': u'-39.25',
              u'datetime': u'2013-03-26 18:49:13',
-             u'fee': u'0.20', u'btc': u'0.50000000',
+             u'fee': u'0.20',
+             u'btc': u'0.50000000',
              u'type': 2,
              u'id': 213642}
+
+        Instead of the keys btc and usd, it can contain other currency codes
         """
         data = {
             'offset': offset,
             'limit': limit,
             'sort': 'desc' if descending else 'asc',
         }
-        return self._post("user_transactions/", data=data, return_json=True)
+        url = self._construct_url("user_transactions/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
-    def open_orders(self):
+    def open_orders(self, base="btc", quote="usd"):
         """
         Returns JSON list of open orders. Each order is represented as a
         dictionary.
         """
-        return self._post("open_orders/", return_json=True)
+        url = self._construct_url("open_orders/", base, quote)
+        return self._post(url, return_json=True, version=2)
 
     def order_status(self):
         """
@@ -248,32 +271,37 @@ class Trading(Public):
         """
         Cancel the order specified by order_id.
 
-        Returns True if order was successfully canceled,otherwise raise a
-        BitstampError.
+        Returns True if order was successfully canceled, otherwise
+        raise a BitstampError.
         """
         data = {'id': order_id}
-        return self._post("cancel_order/", data=data, return_json=True)
+        return self._post("cancel_order/", data=data, return_json=True,
+                          version=2)
 
     def cancel_all_orders(self):
         """
-        Placeholder.
-        """
-        return True
+        Cancel all open orders.
 
-    def buy_limit_order(self, amount, price):
+        Returns True if it was successful, otherwise raises a
+        BitstampError.
+        """
+        return self._post("cancel_all_orders/", return_json=True, version=1)
+
+    def buy_limit_order(self, amount, price, base="btc", quote="usd"):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
+        url = self._construct_url("buy/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
-        return self._post("buy/", data=data, return_json=True)
-
-    def sell_limit_order(self, amount, price):
+    def sell_limit_order(self, amount, price, base="btc", quote="usd"):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
-        return self._post("sell/", data=data, return_json=True)
+        url = self._construct_url("sell/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
     def check_bitstamp_code(self, code):
         """
@@ -281,7 +309,8 @@ class Trading(Public):
         bitstamp code.
         """
         data = {'code': code}
-        return self._post("check_code/", data=data, return_json=True)
+        return self._post("check_code/", data=data, return_json=True,
+                          version=1)
 
     def redeem_bitstamp_code(self, code):
         """
@@ -289,7 +318,8 @@ class Trading(Public):
         account.
         """
         data = {'code': code}
-        return self._post("redeem_code/", data=data, return_json=True)
+        return self._post("redeem_code/", data=data, return_json=True,
+                          version=1)
 
     def withdrawal_requests(self):
         """
@@ -297,20 +327,22 @@ class Trading(Public):
 
         Each request is represented as a dictionary.
         """
-        return self._post("withdrawal_requests/", return_json=True)
+        return self._post("withdrawal_requests/", return_json=True, version=1)
 
     def bitcoin_withdrawal(self, amount, address):
         """
         Send bitcoins to another bitcoin wallet specified by address.
         """
         data = {'amount': amount, 'address': address}
-        return self._post("bitcoin_withdrawal/", data=data, return_json=True)
+        return self._post("bitcoin_withdrawal/", data=data, return_json=True,
+                          version=1)
 
     def bitcoin_deposit_address(self):
         """
         Returns bitcoin deposit address as unicode string
         """
-        return self._post("bitcoin_deposit_address/", return_json=True)
+        return self._post("bitcoin_deposit_address/", return_json=True,
+                          version=1)
 
     def unconfirmed_bitcoin_deposits(self):
         """
@@ -325,7 +357,7 @@ class Trading(Public):
         confirmations
           number of confirmations
         """
-        return self._post("unconfirmed_btc/", return_json=True)
+        return self._post("unconfirmed_btc/", return_json=True, version=1)
 
     def ripple_withdrawal(self, amount, address, currency):
         """
