@@ -38,6 +38,9 @@ class PublicTests(unittest.TestCase):
             ticker = self.client.ticker()
         self.assertIsInstance(ticker, dict)
 
+    def test_ticker_hour(self):
+        placeholder = 'add tests here'
+
     def test_order_book(self):
         response = FakeResponse(b'''
             {"timestamp": "1390424821",
@@ -65,6 +68,12 @@ class PublicTests(unittest.TestCase):
             result = self.client.conversion_rate_usd_eur()
         self.assertIsInstance(result, dict)
         self.assertEqual(sorted(result.keys()), ['buy', 'sell'])
+
+    def test_transfer_to_main(self):
+        placeholder = 'add tests here'
+
+    def test_transfer_from_main(self):
+        placeholder = 'add tests here'
 
 
 class BackwardsCompatPublicTests(unittest.TestCase):

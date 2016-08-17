@@ -84,6 +84,9 @@ class TradingTests(unittest.TestCase):
             result = self.client.open_orders()
         self.assertIsInstance(result, list)
 
+    def test_order_status(self):
+        placeholder = 'add tests here'
+
     def test_bitcoin_deposit_address(self):
         response = FakeResponse(b'"1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA"')
         with mock.patch('requests.post', return_value=response):
@@ -117,6 +120,15 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             result = self.client.cancel_order('15807214')
         self.assertTrue(result)
+
+    def test_cancel_order_v2(self):
+        response = FakeResponse(b'{}')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_order('15807214', version=2)
+        self.assertIsInstance(result, dict)
+
+    def test_cancel_all_orders(self):
+        placeholder = 'add tests here'
 
     def test_withdrawal_requests(self):
         response = FakeResponse(b'[]')

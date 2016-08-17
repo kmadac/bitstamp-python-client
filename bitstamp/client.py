@@ -389,7 +389,7 @@ class Trading(Public):
         Returns ripple deposit address as unicode string.
         """
         return self._post("ripple_address/", version=1, return_json=True)[
-                          "address"]    
+                          "address"]
 
     def transfer_to_main(self, amount, currency, subaccount=None):
         """
