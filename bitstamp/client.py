@@ -380,7 +380,8 @@ class Trading(Public):
         #     built in wrapper method.
         #response = self._post("ripple_withdrawal/", data=data, version=1)
         data = {'amount': amount, 'address': address, 'currency': currency}
-        response = requests.post("ripple_withdrawal/", data=data)
+        response = self._post("ripple_withdrawal/", data=data,
+                              return_json=True)
         return self._expect_true(response)
 
     def ripple_deposit_address(self):
