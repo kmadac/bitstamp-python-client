@@ -57,7 +57,7 @@ class BaseClient(object):
         """
         Adds the orderbook to the url if base and quote are specified.
         """
-        if (base is None) and (quote is None):
+        if not base and not quote:
             return url
         else:
             #TODO: The join method is quicker than standard concatenation
