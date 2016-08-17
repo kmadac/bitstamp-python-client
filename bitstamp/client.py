@@ -57,12 +57,11 @@ class BaseClient(object):
         """
         Adds the orderbook to the url if base and quote are specified.
         """
-        #This condition allows for both None and False values
-        if not base and not quote:
+        if (base is None) and (quote is None):
             return url
         else:
-            #The join method is quicker than standard concatenation
-            url.join([base.lower(), quote.lower(), "/"])
+            #TODO: The join method is quicker than standard concatenation
+            url = url + base.lower() + quote.lower() + "/"
             return url
 
     def _request(self, func, url, version=1, *args, **kwargs):
@@ -264,21 +263,34 @@ class Trading(Public):
     def order_status(self, order_id):
         """
         Returns dictionary.
+        - status: 'Finished'
+          or      'In Queue'
+          or      'Open'
+        - transactions: list of transactions
+          Each transaction is a dictionary with the following keys:
+              btc, usd, price, type, fee, datetime, tid
+          or  btc, eur, ....
+          or  eur, usd, ....
         """
         data = {'id': order_id}
         return self._post("order_status/", data=data, return_json=True,
                           version=1)
 
-    def cancel_order(self, order_id):
+    def cancel_order(self, order_id, version=1):
         """
         Cancel the order specified by order_id.
 
+        Version 1 (default for backwards compatibility reasons):
         Returns True if order was successfully canceled, otherwise
         raise a BitstampError.
+
+        Version 2:
+        Returns dictionary of the canceled order, containing the keys:
+        id, type, price, amount
         """
         data = {'id': order_id}
         return self._post("cancel_order/", data=data, return_json=True,
-                          version=2)
+                          version=version)
 
     def cancel_all_orders(self):
         """
@@ -365,6 +377,9 @@ class Trading(Public):
         """
         Returns true if successful.
         """
+        #TODO this function does not work, it does not use the object's
+        #     built in wrapper method.
+        #response = self._post("ripple_withdrawal/", data=data, version=1)
         data = {'amount': amount, 'address': address, 'currency': currency}
         response = requests.post("ripple_withdrawal/", data=data)
         return self._expect_true(response)
@@ -373,7 +388,8 @@ class Trading(Public):
         """
         Returns ripple deposit address as unicode string.
         """
-        return requests.post("ripple_address/").text
+        return self._post("ripple_address/", version=1, return_json=True)[
+                          "address"]    
 
     def transfer_to_main(self, amount, currency, subaccount=None):
         """
