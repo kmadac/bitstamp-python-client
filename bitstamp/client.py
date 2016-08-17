@@ -60,7 +60,6 @@ class BaseClient(object):
         if not base and not quote:
             return url
         else:
-            #TODO: The join method is quicker than standard concatenation
             url = url + base.lower() + quote.lower() + "/"
             return url
 
