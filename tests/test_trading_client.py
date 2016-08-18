@@ -163,14 +163,14 @@ class TradingTests(unittest.TestCase):
         self.assertIsInstance(result, dict)
         
     def test_transfer_to_main(self):
-        response = FakeResponse(b'')
+        response = FakeResponse(b'{"status": "ok"}')
         with mock.patch('requests.post', return_value=response):
             result = self.client.transfer_to_main(1, "btc")
         self.assertIsInstance(result, dict)
         self.assertEqual(result["status"], "ok")
 
     def test_transfer_from_main(self):
-        response = FakeResponse(b'')
+        response = FakeResponse(b'{"status": "ok"}')
         with mock.patch('requests.post', return_value=response):
             result = self.client.transfer_from_main(1, "btc", "")
         self.assertIsInstance(result, dict)
