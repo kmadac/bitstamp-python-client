@@ -391,9 +391,10 @@ class Trading(Public):
     def transfer_to_main(self, amount, currency, subaccount=None):
         """
         Returns dictionary with status.
+        subaccount has to be the numerical id of the subaccount, not the name
         """
         data = {'amount': amount,
-                'currency': currency}
+                'currency': currency,}
         if subaccount is not None:
             data['subAccount'] = subaccount
         return self._post("transfer-to-main/", data=data, return_json=True,
@@ -402,10 +403,11 @@ class Trading(Public):
     def transfer_from_main(self, amount, currency, subaccount):
         """
         Returns dictionary with status.
+        subaccount has to be the numerical id of the subaccount, not the name
         """
         data = {'amount': amount,
                 'currency': currency,
-                'subAccount': subaccount}
+                'subAccount': subaccount,}
         return self._post("transfer-from-main/", data=data, return_json=True,
                           version=2)
 

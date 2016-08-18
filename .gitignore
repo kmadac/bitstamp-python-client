@@ -2,3 +2,4 @@
 *.egg-info/
 *.egg/
 *.pyc
+test.py*
