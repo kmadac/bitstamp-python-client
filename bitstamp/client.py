@@ -376,9 +376,6 @@ class Trading(Public):
         """
         Returns true if successful.
         """
-        #TODO this function does not work, it does not use the object's
-        #     built in wrapper method.
-        #response = self._post("ripple_withdrawal/", data=data, version=1)
         data = {'amount': amount, 'address': address, 'currency': currency}
         response = self._post("ripple_withdrawal/", data=data,
                               return_json=True)

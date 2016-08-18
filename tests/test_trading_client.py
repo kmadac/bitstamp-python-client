@@ -128,7 +128,10 @@ class TradingTests(unittest.TestCase):
         self.assertIsInstance(result, dict)
 
     def test_cancel_all_orders(self):
-        placeholder = 'add tests here'
+        response = FakeResponse(b'true')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_all_orders()
+        self.assertTrue(result)
 
     def test_withdrawal_requests(self):
         response = FakeResponse(b'[]')
@@ -158,6 +161,20 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             result = self.client.unconfirmed_bitcoin_deposits()
         self.assertIsInstance(result, dict)
+        
+    def test_transfer_to_main(self):
+        response = FakeResponse(b'')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.transfer_to_main(1, "btc")
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["status"], "ok")
+
+    def test_transfer_from_main(self):
+        response = FakeResponse(b'')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.transfer_from_main(1, "btc", "")
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["status"], "ok")
 
 
 if __name__ == '__main__':
