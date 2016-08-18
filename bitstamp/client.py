@@ -396,7 +396,7 @@ class Trading(Public):
                 'currency': currency}
         if subaccount is not None:
             data['subAccount'] = subaccount
-        return self._post("transfer_to_main/", data=data, return_json=True,
+        return self._post("transfer-to-main/", data=data, return_json=True,
                           version=2)
 
     def transfer_from_main(self, amount, currency, subaccount):
@@ -406,7 +406,7 @@ class Trading(Public):
         data = {'amount': amount,
                 'currency': currency,
                 'subAccount': subaccount}
-        return self._post("transfer_from_main/", data=data, return_json=True,
+        return self._post("transfer-from-main/", data=data, return_json=True,
                           version=2)
 
 
