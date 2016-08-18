@@ -85,7 +85,10 @@ class TradingTests(unittest.TestCase):
         self.assertIsInstance(result, list)
 
     def test_order_status(self):
-        placeholder = 'add tests here'
+        response = FakeResponse(b'''{"status": "Open", "transactions": []}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.order_status(0000000000)
+        self.assertIsInstance(result, dict)
 
     def test_bitcoin_deposit_address(self):
         response = FakeResponse(b'"1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA"')
@@ -161,7 +164,7 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             result = self.client.unconfirmed_bitcoin_deposits()
         self.assertIsInstance(result, dict)
-        
+
     def test_transfer_to_main(self):
         response = FakeResponse(b'{"status": "ok"}')
         with mock.patch('requests.post', return_value=response):
