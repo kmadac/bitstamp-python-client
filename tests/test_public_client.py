@@ -45,7 +45,7 @@ class PublicTests(unittest.TestCase):
              "low": "801.00", "ask": "816.44"}''')
         with mock.patch('requests.get', return_value=response):
             ticker_hour = self.client.ticker_hour()
-        self.assertIsInstance(ticker, dict)
+        self.assertIsInstance(ticker_hour, dict)
 
     def test_order_book(self):
         response = FakeResponse(b'''
