@@ -89,6 +89,8 @@ class BaseClient(object):
             error = json_response.get('error')
             if error:
                 raise BitstampError(error)
+            elif json_response.get('status') == "error":
+                raise BitstampError(json_response.get('reason'))
 
         if return_json:
             if json_response is None:
