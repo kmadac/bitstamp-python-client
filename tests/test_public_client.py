@@ -38,6 +38,15 @@ class PublicTests(unittest.TestCase):
             ticker = self.client.ticker()
         self.assertIsInstance(ticker, dict)
 
+    def test_ticker_hour(self):
+        response = FakeResponse(b'''
+            {"volume": "8700.01208078", "last": "816.44",
+             "timestamp": "1390425002", "bid": "815.09", "high": "824.99",
+             "low": "801.00", "ask": "816.44"}''')
+        with mock.patch('requests.get', return_value=response):
+            ticker_hour = self.client.ticker_hour()
+        self.assertIsInstance(ticker_hour, dict)
+
     def test_order_book(self):
         response = FakeResponse(b'''
             {"timestamp": "1390424821",
@@ -66,7 +75,7 @@ class PublicTests(unittest.TestCase):
         self.assertIsInstance(result, dict)
         self.assertEqual(sorted(result.keys()), ['buy', 'sell'])
 
-
+        
 class BackwardsCompatPublicTests(unittest.TestCase):
 
     def setUp(self):

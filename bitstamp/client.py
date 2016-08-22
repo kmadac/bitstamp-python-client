@@ -25,7 +25,8 @@ class BaseClient(object):
     A base class for the API Client methods that handles interaction with
     the requests library.
     """
-    api_url = 'https://www.bitstamp.net/api/'
+    api_url = {1: 'https://www.bitstamp.net/api/',
+               2: 'https://www.bitstamp.net/api/v2/'}
     exception_on_error = True
 
     def __init__(self, proxydict=None, *args, **kwargs):
@@ -52,7 +53,17 @@ class BaseClient(object):
         """
         return {}
 
-    def _request(self, func, url, *args, **kwargs):
+    def _construct_url(self, url, base, quote):
+        """
+        Adds the orderbook to the url if base and quote are specified.
+        """
+        if not base and not quote:
+            return url
+        else:
+            url = url + base.lower() + quote.lower() + "/"
+            return url
+
+    def _request(self, func, url, version=1, *args, **kwargs):
         """
         Make a generic request, adding in any proxy defined by the instance.
 
@@ -61,7 +72,7 @@ class BaseClient(object):
         error message.
         """
         return_json = kwargs.pop('return_json', False)
-        url = self.api_url + url
+        url = self.api_url[version] + url
         response = func(url, *args, **kwargs)
 
         if 'proxies' not in kwargs:
@@ -78,6 +89,8 @@ class BaseClient(object):
             error = json_response.get('error')
             if error:
                 raise BitstampError(error)
+            elif json_response.get('status') == "error":
+                raise BitstampError(json_response.get('reason'))
 
         if return_json:
             if json_response is None:
@@ -90,13 +103,21 @@ class BaseClient(object):
 
 class Public(BaseClient):
 
-    def ticker(self):
+    def ticker(self, base="btc", quote="usd"):
         """
         Returns dictionary.
         """
-        return self._get("ticker/", return_json=True)
+        url = self._construct_url("ticker/", base, quote)
+        return self._get(url, return_json=True, version=2)
 
-    def order_book(self, group=True):
+    def ticker_hour(self, base="btc", quote="usd"):
+        """
+        Returns dictionary of the average ticker of the past hour.
+        """
+        url = self._construct_url("ticker_hour/", base, quote)
+        return self._get(url, return_json=True, version=2)
+
+    def order_book(self, group=True, base="btc", quote="usd"):
         """
         Returns dictionary with "bids" and "asks".
 
@@ -104,15 +125,17 @@ class Public(BaseClient):
         of price and amount.
         """
         params = {'group': group}
-        return self._get("order_book/", params=params, return_json=True)
+        url = self._construct_url("order_book/", base, quote)
+        return self._get(url, params=params, return_json=True, version=2)
 
-    def transactions(self, time=TransRange.HOUR):
+    def transactions(self, time=TransRange.HOUR, base="btc", quote="usd"):
         """
         Returns transactions for the last 'timedelta' seconds.
-        Paramater time is specified by one of two values of TransRange class.
+        Parameter time is specified by one of two values of TransRange class.
         """
         params = {'time': time}
-        return self._get("transactions/", params=params, return_json=True)
+        url = self._construct_url("transactions/", base, quote)
+        return self._get(url, params=params, return_json=True, version=2)
 
     def conversion_rate_usd_eur(self):
         """
@@ -120,7 +143,7 @@ class Public(BaseClient):
 
             {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
         """
-        return self._get("eur_usd/", return_json=True)
+        return self._get("eur_usd/", return_json=True, version=1)
 
 
 class Trading(Public):
@@ -182,7 +205,7 @@ class Trading(Public):
             return True
         raise BitstampError("Unexpected response")
 
-    def account_balance(self):
+    def account_balance(self, base="btc", quote="usd"):
         """
         Returns dictionary::
 
@@ -192,59 +215,108 @@ class Trading(Public):
              u'usd_reserved': u'0',
              u'btc_balance': u'2.30856098',
              u'usd_balance': u'114.64',
-             u'usd_available': u'114.64'}
+             u'usd_available': u'114.64',
+             ---If base and quote were specified:
+             u'fee': u'',
+             ---If base and quote were not specified:
+             u'btcusd_fee': u'0.25',
+             u'btceur_fee': u'0.25',
+             u'eurusd_fee': u'0.20',
+             }
+            There could be reasons to set base and quote to None (or False),
+            because the result then will contain the fees for all currency pairs
+            For backwards compatibility this can not be the default however.
         """
-        return self._post("balance/", return_json=True)
+        url = self._construct_url("balance/", base, quote)
+        return self._post(url, return_json=True, version=2)
 
-    def user_transactions(self, offset=0, limit=100, descending=True):
+    def user_transactions(self, offset=0, limit=100, descending=True,
+                          base=None, quote=None):
         """
         Returns descending list of transactions. Every transaction (dictionary)
         contains::
 
             {u'usd': u'-39.25',
              u'datetime': u'2013-03-26 18:49:13',
-             u'fee': u'0.20', u'btc': u'0.50000000',
+             u'fee': u'0.20',
+             u'btc': u'0.50000000',
              u'type': 2,
              u'id': 213642}
+
+        Instead of the keys btc and usd, it can contain other currency codes
         """
         data = {
             'offset': offset,
             'limit': limit,
             'sort': 'desc' if descending else 'asc',
         }
-        return self._post("user_transactions/", data=data, return_json=True)
+        url = self._construct_url("user_transactions/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
-    def open_orders(self):
+    def open_orders(self, base="btc", quote="usd"):
         """
         Returns JSON list of open orders. Each order is represented as a
         dictionary.
         """
-        return self._post("open_orders/", return_json=True)
+        url = self._construct_url("open_orders/", base, quote)
+        return self._post(url, return_json=True, version=2)
 
-    def cancel_order(self, order_id):
+    def order_status(self, order_id):
+        """
+        Returns dictionary.
+        - status: 'Finished'
+          or      'In Queue'
+          or      'Open'
+        - transactions: list of transactions
+          Each transaction is a dictionary with the following keys:
+              btc, usd, price, type, fee, datetime, tid
+          or  btc, eur, ....
+          or  eur, usd, ....
+        """
+        data = {'id': order_id}
+        return self._post("order_status/", data=data, return_json=True,
+                          version=1)
+
+    def cancel_order(self, order_id, version=1):
         """
         Cancel the order specified by order_id.
 
-        Returns True if order was successfully canceled,otherwise raise a
-        BitstampError.
+        Version 1 (default for backwards compatibility reasons):
+        Returns True if order was successfully canceled, otherwise
+        raise a BitstampError.
+
+        Version 2:
+        Returns dictionary of the canceled order, containing the keys:
+        id, type, price, amount
         """
         data = {'id': order_id}
-        return self._post("cancel_order/", data=data, return_json=True)
+        return self._post("cancel_order/", data=data, return_json=True,
+                          version=version)
 
-    def buy_limit_order(self, amount, price):
+    def cancel_all_orders(self):
+        """
+        Cancel all open orders.
+
+        Returns True if it was successful, otherwise raises a
+        BitstampError.
+        """
+        return self._post("cancel_all_orders/", return_json=True, version=1)
+
+    def buy_limit_order(self, amount, price, base="btc", quote="usd"):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
+        url = self._construct_url("buy/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
-        return self._post("buy/", data=data, return_json=True)
-
-    def sell_limit_order(self, amount, price):
+    def sell_limit_order(self, amount, price, base="btc", quote="usd"):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
-        return self._post("sell/", data=data, return_json=True)
+        url = self._construct_url("sell/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
     def check_bitstamp_code(self, code):
         """
@@ -252,7 +324,8 @@ class Trading(Public):
         bitstamp code.
         """
         data = {'code': code}
-        return self._post("check_code/", data=data, return_json=True)
+        return self._post("check_code/", data=data, return_json=True,
+                          version=1)
 
     def redeem_bitstamp_code(self, code):
         """
@@ -260,7 +333,8 @@ class Trading(Public):
         account.
         """
         data = {'code': code}
-        return self._post("redeem_code/", data=data, return_json=True)
+        return self._post("redeem_code/", data=data, return_json=True,
+                          version=1)
 
     def withdrawal_requests(self):
         """
@@ -268,20 +342,22 @@ class Trading(Public):
 
         Each request is represented as a dictionary.
         """
-        return self._post("withdrawal_requests/", return_json=True)
+        return self._post("withdrawal_requests/", return_json=True, version=1)
 
     def bitcoin_withdrawal(self, amount, address):
         """
         Send bitcoins to another bitcoin wallet specified by address.
         """
         data = {'amount': amount, 'address': address}
-        return self._post("bitcoin_withdrawal/", data=data, return_json=True)
+        return self._post("bitcoin_withdrawal/", data=data, return_json=True,
+                          version=1)
 
     def bitcoin_deposit_address(self):
         """
         Returns bitcoin deposit address as unicode string
         """
-        return self._post("bitcoin_deposit_address/", return_json=True)
+        return self._post("bitcoin_deposit_address/", return_json=True,
+                          version=1)
 
     def unconfirmed_bitcoin_deposits(self):
         """
@@ -296,21 +372,46 @@ class Trading(Public):
         confirmations
           number of confirmations
         """
-        return self._post("unconfirmed_btc/", return_json=True)
+        return self._post("unconfirmed_btc/", return_json=True, version=1)
 
     def ripple_withdrawal(self, amount, address, currency):
         """
         Returns true if successful.
         """
         data = {'amount': amount, 'address': address, 'currency': currency}
-        response = requests.post("ripple_withdrawal/", data=data)
+        response = self._post("ripple_withdrawal/", data=data,
+                              return_json=True)
         return self._expect_true(response)
 
     def ripple_deposit_address(self):
         """
         Returns ripple deposit address as unicode string.
         """
-        return requests.post("ripple_address/").text
+        return self._post("ripple_address/", version=1, return_json=True)[
+                          "address"]
+
+    def transfer_to_main(self, amount, currency, subaccount=None):
+        """
+        Returns dictionary with status.
+        subaccount has to be the numerical id of the subaccount, not the name
+        """
+        data = {'amount': amount,
+                'currency': currency,}
+        if subaccount is not None:
+            data['subAccount'] = subaccount
+        return self._post("transfer-to-main/", data=data, return_json=True,
+                          version=2)
+
+    def transfer_from_main(self, amount, currency, subaccount):
+        """
+        Returns dictionary with status.
+        subaccount has to be the numerical id of the subaccount, not the name
+        """
+        data = {'amount': amount,
+                'currency': currency,
+                'subAccount': subaccount,}
+        return self._post("transfer-from-main/", data=data, return_json=True,
+                          version=2)
 
 
 # Backwards compatibility
@@ -325,7 +426,7 @@ class BackwardsCompat(object):
 
     def __init__(self, *args, **kwargs):
         """
-        Instanciate the wrapped class.
+        Instantiate the wrapped class.
         """
         self.wrapped = self.wrapped_class(*args, **kwargs)
         class_name = self.__class__.__name__

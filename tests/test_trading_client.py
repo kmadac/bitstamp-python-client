@@ -84,6 +84,12 @@ class TradingTests(unittest.TestCase):
             result = self.client.open_orders()
         self.assertIsInstance(result, list)
 
+    def test_order_status(self):
+        response = FakeResponse(b'''{"status": "Open", "transactions": []}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.order_status(0000000000)
+        self.assertIsInstance(result, dict)
+
     def test_bitcoin_deposit_address(self):
         response = FakeResponse(b'"1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA"')
         with mock.patch('requests.post', return_value=response):
@@ -118,6 +124,18 @@ class TradingTests(unittest.TestCase):
             result = self.client.cancel_order('15807214')
         self.assertTrue(result)
 
+    def test_cancel_order_v2(self):
+        response = FakeResponse(b'{}')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_order('15807214', version=2)
+        self.assertIsInstance(result, dict)
+
+    def test_cancel_all_orders(self):
+        response = FakeResponse(b'true')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.cancel_all_orders()
+        self.assertTrue(result)
+
     def test_withdrawal_requests(self):
         response = FakeResponse(b'[]')
         with mock.patch('requests.post', return_value=response):
@@ -146,6 +164,20 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             result = self.client.unconfirmed_bitcoin_deposits()
         self.assertIsInstance(result, dict)
+
+    def test_transfer_to_main(self):
+        response = FakeResponse(b'{"status": "ok"}')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.transfer_to_main(1, "btc")
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["status"], "ok")
+
+    def test_transfer_from_main(self):
+        response = FakeResponse(b'{"status": "ok"}')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.transfer_from_main(1, "btc", "")
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["status"], "ok")
 
 
 if __name__ == '__main__':
