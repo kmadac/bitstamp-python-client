@@ -332,6 +332,7 @@ class Trading(Public):
         """
         data = {'amount': amount}
         url = self._construct_url("sell/market/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
 
     def check_bitstamp_code(self, code):
         """
