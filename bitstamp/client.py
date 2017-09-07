@@ -390,6 +390,36 @@ class Trading(Public):
         """
         return self._post("unconfirmed_btc/", return_json=True, version=1)
 
+    def litecoin_withdrawal(self, amount, address):
+        """
+        Send litecoins to another litecoin wallet specified by address.
+        """
+        data = {'amount': amount, 'address': address}
+        return self._post("ltc_withdrawal/", data=data, return_json=True,
+                          version=2)
+
+    def litecoin_deposit_address(self):
+        """
+        Returns litecoin deposit address as unicode string
+        """
+        return self._post("ltc_address/", return_json=True,
+                          version=2)
+
+    def ethereum_withdrawal(self, amount, address):
+        """
+        Send ethers to another ether wallet specified by address.
+        """
+        data = {'amount': amount, 'address': address}
+        return self._post("eth_withdrawal/", data=data, return_json=True,
+                          version=2)
+
+    def ethereum_deposit_address(self):
+        """
+        Returns ethereum deposit address as unicode string
+        """
+        return self._post("eth_address/", return_json=True,
+                          version=2)
+
     def ripple_withdrawal(self, amount, address, currency):
         """
         Returns true if successful.
