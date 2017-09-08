@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/kmadac/bitstamp-python-client.svg?branch=master
+    :target: https://travis-ci.org/kmadac/bitstamp-python-client
+
 ======================
 bitstamp-python-client
 ======================
