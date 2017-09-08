@@ -22,7 +22,7 @@ setup(
     version='2.2.0',
     description='Bitstamp API python implementation',
     packages=['bitstamp'],
-    url='',
+    url='https://github.com/kmadac/bitstamp-python-client',
     license='MIT',
     author='Kamil Madac',
     author_email='kamil.madac@gmail.com',
