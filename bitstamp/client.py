@@ -310,12 +310,28 @@ class Trading(Public):
         url = self._construct_url("buy/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
+    def buy_market_order(self, amount, base="btc", quote="usd"):
+        """
+        Order to buy amount of bitcoins for market price.
+        """
+        data = {'amount': amount}
+        url = self._construct_url("buy/market/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
+
     def sell_limit_order(self, amount, price, base="btc", quote="usd"):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
         url = self._construct_url("sell/", base, quote)
+        return self._post(url, data=data, return_json=True, version=2)
+
+    def sell_market_order(self, amount, base="btc", quote="usd"):
+        """
+        Order to buy amount of bitcoins for market price.
+        """
+        data = {'amount': amount}
+        url = self._construct_url("sell/market/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
     def check_bitstamp_code(self, code):
@@ -373,6 +389,36 @@ class Trading(Public):
           number of confirmations
         """
         return self._post("unconfirmed_btc/", return_json=True, version=1)
+
+    def litecoin_withdrawal(self, amount, address):
+        """
+        Send litecoins to another litecoin wallet specified by address.
+        """
+        data = {'amount': amount, 'address': address}
+        return self._post("ltc_withdrawal/", data=data, return_json=True,
+                          version=2)
+
+    def litecoin_deposit_address(self):
+        """
+        Returns litecoin deposit address as unicode string
+        """
+        return self._post("ltc_address/", return_json=True,
+                          version=2)
+
+    def ethereum_withdrawal(self, amount, address):
+        """
+        Send ethers to another ether wallet specified by address.
+        """
+        data = {'amount': amount, 'address': address}
+        return self._post("eth_withdrawal/", data=data, return_json=True,
+                          version=2)
+
+    def ethereum_deposit_address(self):
+        """
+        Returns ethereum deposit address as unicode string
+        """
+        return self._post("eth_address/", return_json=True,
+                          version=2)
 
     def ripple_withdrawal(self, amount, address, currency):
         """

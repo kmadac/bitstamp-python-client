@@ -96,6 +96,18 @@ class TradingTests(unittest.TestCase):
             result = self.client.bitcoin_deposit_address()
         self.assertEqual(result, '1ARfAEqUzAtbnuJLUxm5KKfDJqrGi27hwA')
 
+    def test_litecoin_deposit_address(self):
+        response = FakeResponse(b'"MVYt6Mw6XHp7UE1gDn6pa8ZbsdtWqWiZUp"')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.litecoin_deposit_address()
+        self.assertEqual(result, 'MVYt6Mw6XHp7UE1gDn6pa8ZbsdtWqWiZUp')
+
+    def test_ethereum_deposit_address(self):
+        response = FakeResponse(b'"0xbd8c4ffcb30c1fed0facf716bc9fd5849539e1c2"')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.ethereum_deposit_address()
+        self.assertEqual(result, '0xbd8c4ffcb30c1fed0facf716bc9fd5849539e1c2')
+
     def test_buy_limit_order(self):
         response = FakeResponse(b'''
             {"amount": "0.1",
@@ -116,6 +128,28 @@ class TradingTests(unittest.TestCase):
              "type": 1}''')
         with mock.patch('requests.post', return_value=response):
             result = self.client.sell_limit_order('1', '9000')
+        self.assertIsInstance(result, dict)
+
+    def test_buy_market_order(self):
+        response = FakeResponse(b'''
+            {"amount": "0.1",
+             "datetime": "2014-01-22 01:20:23.226788",
+             "id": 55507211,
+             "price": "90",
+             "type": 0}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.buy_market_order('0.1')
+        self.assertIsInstance(result, dict)
+
+    def test_sell_market_order(self):
+        response = FakeResponse(b'''
+            {"amount": "1",
+             "datetime": "2014-01-22 02:20:23.226788",
+             "id": 55507212,
+             "price": "9000",
+             "type": 1}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.sell_market_order('1')
         self.assertIsInstance(result, dict)
 
     def test_cancel_order(self):
