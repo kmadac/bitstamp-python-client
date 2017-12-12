@@ -202,7 +202,7 @@ class TradingTests(unittest.TestCase):
     def test_bitcoin_withdrawal(self):
         response = FakeResponse(b'''{"id": "1"}''')
         with mock.patch('requests.post', return_value=response):
-            result = self.client.unconfirmed_bitcoin_deposits()
+            result = self.client.bitcoin_withdrawal(1, '3J98a1Wpaf73CNmQviecrnyiWrnqRhWNLy')
         self.assertIsInstance(result, dict)
 
     def test_xrp_withdrawal(self):
