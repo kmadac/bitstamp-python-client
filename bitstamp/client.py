@@ -436,6 +436,25 @@ class Trading(Public):
         return self._post("ripple_address/", version=1, return_json=True)[
                           "address"]
 
+    def xrp_withdrawal(self, amount, address, destination_tag=None):
+        """
+        Sends xrps to another xrp wallet specified by address. Returns withdrawal id.
+        """
+        data = {'amount': amount, 'address': address}
+        if destination_tag:
+            data['destination_tag'] = destination_tag
+
+        return self._post("xrp_withdrawal/", data=data, return_json=True,
+                          version=2)["id"]
+
+    def xrp_deposit_address(self):
+        """
+        Returns ripple deposit address and destination tag as dictionary.
+        Example: {u'destination_tag': 53965834, u'address': u'rDsbeamaa4FFwbQTJp9Rs84Q56vCiWCaBx'}
+
+        """
+        return self._post("xrp_address/", version=2, return_json=True)
+
     def transfer_to_main(self, amount, currency, subaccount=None):
         """
         Returns dictionary with status.
