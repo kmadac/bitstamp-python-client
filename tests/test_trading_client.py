@@ -108,6 +108,12 @@ class TradingTests(unittest.TestCase):
             result = self.client.ethereum_deposit_address()
         self.assertEqual(result, '0xbd8c4ffcb30c1fed0facf716bc9fd5849539e1c2')
 
+    def test_xrp_deposit_address(self):
+        response = FakeResponse(b'{"destination_tag": 53965834, "address":"rDsbeamaa4FFwbQTJp9Rs84Q56vCiWCaBx"}')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.xrp_deposit_address()
+        self.assertDictEqual(result, {u'destination_tag': 53965834, u'address': u'rDsbeamaa4FFwbQTJp9Rs84Q56vCiWCaBx'})
+
     def test_buy_limit_order(self):
         response = FakeResponse(b'''
             {"amount": "0.1",
@@ -198,6 +204,12 @@ class TradingTests(unittest.TestCase):
         with mock.patch('requests.post', return_value=response):
             result = self.client.bitcoin_withdrawal(1, '3J98a1Wpaf73CNmQviecrnyiWrnqRhWNLy')
         self.assertIsInstance(result, dict)
+
+    def test_xrp_withdrawal(self):
+        response = FakeResponse(b'''{"id": "1"}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.xrp_withdrawal(1, "rDsbeamaa4FFwbQTJp9Rs84Q56vCiWCaBx")
+        self.assertEqual(result, '1')
 
     def test_transfer_to_main(self):
         response = FakeResponse(b'{"status": "ok"}')
