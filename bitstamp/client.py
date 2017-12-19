@@ -3,7 +3,6 @@ import hmac
 import hashlib
 import time
 import warnings
-from pprint import pprint
 
 import requests
 
