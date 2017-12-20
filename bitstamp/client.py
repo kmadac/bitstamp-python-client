@@ -458,6 +458,21 @@ class Trading(Public):
         """
         return self._post("xrp_address/", version=2, return_json=True)
 
+    def bch_withdrawal(self, amount, address):
+        """
+        Send bitcoin cash to another bitcoin cash wallet specified by address.
+        """
+        data = {'amount': amount, 'address': address}
+        return self._post("bch_withdrawal/", data=data, return_json=True,
+                          version=2)
+
+    def bch_deposit_address(self):
+        """
+        Returns bitcoin cash deposit address as unicode string
+        """
+        return self._post("bch_address/", return_json=True,
+                          version=2)
+
     def transfer_to_main(self, amount, currency, subaccount=None):
         """
         Returns dictionary with status.

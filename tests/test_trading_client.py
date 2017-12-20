@@ -205,6 +205,12 @@ class TradingTests(unittest.TestCase):
             result = self.client.bitcoin_withdrawal(1, '3J98a1Wpaf73CNmQviecrnyiWrnqRhWNLy')
         self.assertIsInstance(result, dict)
 
+    def test_bch_withdrawal(self):
+        response = FakeResponse(b'''{"id": "1"}''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.bch_withdrawal(1, '17xu2tUdikA2grgqnVoxQxAKRuDuwmPDjU')
+        self.assertIsInstance(result, dict)
+
     def test_xrp_withdrawal(self):
         response = FakeResponse(b'''{"id": "1"}''')
         with mock.patch('requests.post', return_value=response):
