@@ -1,10 +1,18 @@
 language: python
 python:
--   "2.7"
--   "3.4"
--   "3.5"
--   "3.6"
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
 install:
--   pip install tox
+- pip install tox
 script:
--   tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d .)
+- tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d .)
+deploy:
+  provider: pypi
+  user: kmadac
+  password:
+    secure: BKsy6+h/dvZQOg/LbUXHRCO+X4AtoY66RlDubnRTCzfleJszci2dGo/Rznb6quV/pXf0nXloTeLs6joFnm2P2b59wTH9RI7ZxifsGFpiJ24i3dYPQB7yKqk5jovNtzlofcILd9y4hb0iI4iA1iT1PErOQ8y2gydH0tp4c4hJkgb3TmX7FpMEgifXCFa9jAL2NiO9jPc0KYz55p+IwSfWkGuK/vYrCI3pCyGagtWhmhWQytEL+DB5ZSOWFBsUqBgHKIGGH6/hw/zmvqQLASaV412/ovRIGPoSicXSFM91QSsWdiVi5Fqn0mVBqg5YjfmR2P0fIYTT79G+iL1Ki/yaYUgdavG0cKom03SdKzFxQpzWjdGI3yN6bDUbbWu5GAYZjEoVEdEgw4pdAKTLD8BImY6chXNx0j9XngTCQPyYY5C/vWmjbdgUbID0qW/5Y16X6SapzfGXvf2YAldNCua0h0wvL8vk5SI6CQH+uPmwZpFr/q92mM256Hj+ruD/yF4zxAB4fmoDnzCkFCxwRmW0a+eVpxEYxVgGdJGck81XsvlYIV++5vCX4CJx51hzaa1K5ni5nGv8eKMVnfZ9o+6erykXUQoJcLTYBvD14ZsSAr7s1H5vDqu8wR54dBgWz8qNPMIpVJcp1dG50kmjLQZ8DWhGEtxEvO0ulnMMArJMdyc=
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true
