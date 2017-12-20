@@ -352,13 +352,16 @@ class Trading(Public):
         return self._post("redeem_code/", data=data, return_json=True,
                           version=1)
 
-    def withdrawal_requests(self):
+    def withdrawal_requests(self, timedelta = 86400):
         """
         Returns list of withdrawal requests.
 
         Each request is represented as a dictionary.
+
+        By default, the last 24 hours (86400 seconds) are returned.
         """
-        return self._post("withdrawal_requests/", return_json=True, version=1)
+        data = {'timedelta': timedelta}
+        return self._post("withdrawal_requests/", return_json=True, version=1, data=data)
 
     def bitcoin_withdrawal(self, amount, address):
         """
