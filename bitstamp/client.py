@@ -31,12 +31,13 @@ class BaseClient(object):
 
     def __init__(self, proxydict=None, *args, **kwargs):
         self.proxydict = proxydict
+        self.req_session = requests.Session()
 
     def _get(self, *args, **kwargs):
         """
         Make a GET request.
         """
-        return self._request(requests.get, *args, **kwargs)
+        return self._request(self.req_session.get, *args, **kwargs)
 
     def _post(self, *args, **kwargs):
         """
@@ -45,7 +46,7 @@ class BaseClient(object):
         data = self._default_data()
         data.update(kwargs.get('data') or {})
         kwargs['data'] = data
-        return self._request(requests.post, *args, **kwargs)
+        return self._request(self.req_session.post, *args, **kwargs)
 
     def _default_data(self):
         """
