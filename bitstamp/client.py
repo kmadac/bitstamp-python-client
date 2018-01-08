@@ -302,11 +302,13 @@ class Trading(Public):
         """
         return self._post("cancel_all_orders/", return_json=True, version=1)
 
-    def buy_limit_order(self, amount, price, base="btc", quote="usd"):
+    def buy_limit_order(self, amount, price, base="btc", quote="usd", limit_price=None):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
+        if limit_price is not None:
+            data['limit_price'] = limit_price
         url = self._construct_url("buy/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
@@ -318,11 +320,13 @@ class Trading(Public):
         url = self._construct_url("buy/market/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
-    def sell_limit_order(self, amount, price, base="btc", quote="usd"):
+    def sell_limit_order(self, amount, price, base="btc", quote="usd", limit_price=None):
         """
         Order to buy amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
+        if limit_price is not None:
+            data['limit_price'] = limit_price
         url = self._construct_url("sell/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
