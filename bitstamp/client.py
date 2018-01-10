@@ -139,6 +139,14 @@ class Public(BaseClient):
 
     def conversion_rate_usd_eur(self):
         """
+        Returns simple dictionary::
+
+            {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
+        """
+        return self._get("eur_usd/", return_json=True, version=1)
+
+    def trading_pairs_info(self):
+        """
         Returns list of dictionaries specifying details of each available trading pair::
 
             {
@@ -150,14 +158,6 @@ class Public(BaseClient):
                 'counter_decimals':2,
                 'base_decimals':8
             },
-        """
-        return self._get("eur_usd/", return_json=True, version=1)
-
-    def trading_pairs_info(self):
-        """
-        Returns simple dictionary::
-
-            {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
         """
         return self._get("trading-pairs-info/", return_json=True, version=2)
 
