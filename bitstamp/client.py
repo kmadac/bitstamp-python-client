@@ -145,6 +145,13 @@ class Public(BaseClient):
         """
         return self._get("eur_usd/", return_json=True, version=1)
 
+    def trading_pairs_info(self):
+        """
+        Returns simple dictionary::
+
+            {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
+        """
+        return self._get("trading-pairs-info/", return_json=True, version=2)
 
 class Trading(Public):
 
