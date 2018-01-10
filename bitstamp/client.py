@@ -139,9 +139,17 @@ class Public(BaseClient):
 
     def conversion_rate_usd_eur(self):
         """
-        Returns simple dictionary::
+        Returns list of dictionaries specifying details of each available trading pair::
 
-            {'buy': 'buy conversion rate', 'sell': 'sell conversion rate'}
+            {
+                'description':'Litecoin / U.S. dollar',
+                'name':'LTC/USD',
+                'url_symbol':'ltcusd',
+                'trading':'Enabled',
+                'minimum_order':'5.0 USD',
+                'counter_decimals':2,
+                'base_decimals':8
+            },
         """
         return self._get("eur_usd/", return_json=True, version=1)
 
