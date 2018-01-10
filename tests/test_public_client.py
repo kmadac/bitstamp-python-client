@@ -1,6 +1,6 @@
 import unittest
 import warnings
-import ipdb
+
 import bitstamp.client
 import mock
 import requests
