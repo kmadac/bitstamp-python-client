@@ -145,6 +145,21 @@ class Public(BaseClient):
         """
         return self._get("eur_usd/", return_json=True, version=1)
 
+    def trading_pairs_info(self):
+        """
+        Returns list of dictionaries specifying details of each available trading pair::
+
+            {
+                'description':'Litecoin / U.S. dollar',
+                'name':'LTC/USD',
+                'url_symbol':'ltcusd',
+                'trading':'Enabled',
+                'minimum_order':'5.0 USD',
+                'counter_decimals':2,
+                'base_decimals':8
+            },
+        """
+        return self._get("trading-pairs-info/", return_json=True, version=2)
 
 class Trading(Public):
 

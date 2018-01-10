@@ -75,6 +75,17 @@ class PublicTests(unittest.TestCase):
         self.assertIsInstance(result, dict)
         self.assertEqual(sorted(result.keys()), ['buy', 'sell'])
 
+    def test_trading_pairs_info(self):
+        response = FakeResponse(b'''
+            [{"counter_decimals": 2, "base_decimals": 8, 
+            "minimum_order": "5.0 USD", "description": "Litecoin / U.S. dollar", 
+            "trading": "Enabled", "url_symbol": "ltcusd", "name": "LTC/USD"}]''')
+        with mock.patch('requests.get', return_value=response):
+            result = self.client.trading_pairs_info()
+        self.assertIsInstance(result, list)
+        self.assertEqual(sorted(result[0].keys()), ['base_decimals', 'counter_decimals',
+            'description', 'minimum_order', 'name', 'trading', 'url_symbol'])
+
         
 class BackwardsCompatPublicTests(unittest.TestCase):
 
