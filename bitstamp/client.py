@@ -329,7 +329,7 @@ class Trading(Public):
 
     def buy_market_order(self, amount, base="btc", quote="usd"):
         """
-        Order to buy amount of bitcoins for market price.
+        Order to sell amount of bitcoins for market price.
         """
         data = {'amount': amount}
         url = self._construct_url("buy/market/", base, quote)
