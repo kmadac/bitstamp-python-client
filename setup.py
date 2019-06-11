@@ -19,7 +19,7 @@ class Tox(TestCommand):
 
 setup(
     name='BitstampClient',
-    version='2.2.6',
+    version='2.2.7',
     description='Bitstamp API python implementation',
     packages=['bitstamp'],
     url='https://github.com/kmadac/bitstamp-python-client',
