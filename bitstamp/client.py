@@ -3,9 +3,11 @@ import hmac
 import hashlib
 import time
 import warnings
+import logging
 
 import requests
 
+logger = logging.getLogger(__name__)
 
 class BitstampError(Exception):
     pass
@@ -73,7 +75,11 @@ class BaseClient(object):
         """
         return_json = kwargs.pop('return_json', False)
         url = self.api_url[version] + url
+        logger.debug("Request URL: " + url)
+        logger.debug("Request nonce: " + str(kwargs['data']['nonce']))
         response = func(url, *args, **kwargs)
+        logger.debug("Response Code {} and Reason {}".format(response.status_code, response.reason))
+        logger.debug("Response Text {}".format(response.text))
 
         if 'proxies' not in kwargs:
             kwargs['proxies'] = self.proxydict
