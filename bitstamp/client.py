@@ -337,7 +337,7 @@ class Trading(Public):
 
     def sell_limit_order(self, amount, price, base="btc", quote="usd", limit_price=None):
         """
-        Order to buy amount of bitcoins for specified price.
+        Order to sell amount of bitcoins for specified price.
         """
         data = {'amount': amount, 'price': price}
         if limit_price is not None:
@@ -347,7 +347,7 @@ class Trading(Public):
 
     def sell_market_order(self, amount, base="btc", quote="usd"):
         """
-        Order to buy amount of bitcoins for market price.
+        Order to sell amount of bitcoins for market price.
         """
         data = {'amount': amount}
         url = self._construct_url("sell/market/", base, quote)
