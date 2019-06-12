@@ -283,6 +283,14 @@ class Trading(Public):
         url = self._construct_url("open_orders/", base, quote)
         return self._post(url, return_json=True, version=2)
 
+    def all_open_orders(self):
+        """
+        Returns JSON list of all open orders. Each order is represented as a
+        dictionary.
+        """
+        url = self._construct_url("open_orders/all/")
+        return self._post(url, return_json=True, version=2)
+
     def order_status(self, order_id):
         """
         Returns dictionary.
