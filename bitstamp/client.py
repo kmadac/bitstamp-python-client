@@ -285,11 +285,10 @@ class Trading(Public):
 
     def all_open_orders(self):
         """
-        Returns JSON list of all open orders. Each order is represented as a
-        dictionary.
+        Returns JSON list of open orders of all currency pairs.
+        Each order is represented as a dictionary.
         """
-        url = self._construct_url("open_orders/all/")
-        return self._post(url, return_json=True, version=2)
+        return self._post('open_orders/all/', return_json=True, version=2)
 
     def order_status(self, order_id):
         """

@@ -84,6 +84,12 @@ class TradingTests(unittest.TestCase):
             result = self.client.open_orders()
         self.assertIsInstance(result, list)
 
+    def test_all_open_orders(self):
+        response = FakeResponse(b'[]')
+        with mock.patch('requests.post', return_value=response):
+            result = self.client.all_open_orders()
+        self.assertIsInstance(result, list)
+
     def test_order_status(self):
         response = FakeResponse(b'''{"status": "Open", "transactions": []}''')
         with mock.patch('requests.post', return_value=response):
