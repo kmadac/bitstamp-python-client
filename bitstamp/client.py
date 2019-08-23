@@ -20,6 +20,7 @@ class TransRange(object):
     """
     HOUR = 'hour'
     MINUTE = 'minute'
+    DAY = 'day'
 
 
 class BaseClient(object):
