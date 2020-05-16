@@ -254,7 +254,7 @@ class Trading(Public):
         return self._post(url, return_json=True, version=2)
 
     def user_transactions(self, offset=0, limit=1000, descending=True,
-                          base=None, quote=None):
+                          base=None, quote=None, since_timestamp=None, since_id=None):
         """
         Returns descending list of transactions. Every transaction (dictionary)
         contains::
@@ -273,18 +273,22 @@ class Trading(Public):
             'limit': limit,
             'sort': 'desc' if descending else 'asc',
         }
+        if since_timestamp is not None:
+            data.update({'since_timestamp': since_timestamp})
+        if since_id is not None:
+            data.update({'since_id': since_id})
         url = self._construct_url("user_transactions/", base, quote)
         return self._post(url, data=data, return_json=True, version=2)
 
-    def user_crypto_transactions(self, offset=0, limit=1000):
+    def crypto_transactions(self, offset=0, limit=1000):
         """
         Returns list of crypto transactions. Every transaction (dictionary)
         contains::
-            {u'currency' : u'xrp'
-             u'destinationAddress':	'Destination Address'
-             u'txid':	'Transaction Hash'
+            {u'currency' : u'LTC'
+             u'destinationAddress':	u'Destination Address'
+             u'txid':	u'Transaction Hash'
              u'amount'	u'1.0'
-             u'datetime': u'0.2'}
+             u'datetime': int(timestamp)}
 
         Instead of the keys btc and usd, it can contain other currency codes
         """
@@ -292,7 +296,7 @@ class Trading(Public):
             'offset': offset,
             'limit': limit,
         }
-        url = self._construct_url("crypto-transactions/")
+        url = "crypto-transactions/"
         return self._post(url, data=data, return_json=True, version=2)
 
     def open_orders(self, base="btc", quote="usd"):
