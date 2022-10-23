@@ -534,6 +534,12 @@ class Trading(Public):
         return self._post("transfer-from-main/", data=data, return_json=True,
                           version=2)
 
+    def websockets_token(self):
+        """
+        Generates token required for subscribing to private WebSocket channels.
+        """
+        return self._post("websockets_token/", return_json=True, version=2)
+
 
 # Backwards compatibility
 class BackwardsCompat(object):
