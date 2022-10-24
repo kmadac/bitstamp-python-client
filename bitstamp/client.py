@@ -136,6 +136,21 @@ class Public(BaseClient):
         url = self._construct_url("order_book/", base, quote)
         return self._get(url, params=params, return_json=True, version=2)
 
+    def ohlc(self, base="btc", quote="usd", start=None, end=None, step=60, limit=1000):
+        """
+        Returns Open, High, Low and close.
+        The parameter 'step' gives the interval of time in seconds for which data is retrieved.
+        If none from start or end timestamps are posted then endpoint returns
+        OHLC data to current unixtime. If both start and end timestamps are
+        posted, end timestamp will be used.
+        """
+        params = {'start': start,
+                  'end': end,
+                  'step': step,
+                  'limit': limit}
+        url = self._construct_url("ohlc/", base, quote)
+        return self._get(url, params=params, return_json=True, version=2)
+
     def transactions(self, time=TransRange.HOUR, base="btc", quote="usd"):
         """
         Returns transactions for the last 'timedelta' seconds.
