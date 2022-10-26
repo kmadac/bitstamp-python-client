@@ -1,6 +1,3 @@
-.. image:: https://travis-ci.org/kmadac/bitstamp-python-client.svg?branch=master
-    :target: https://travis-ci.org/kmadac/bitstamp-python-client
-
 .. image:: https://badge.fury.io/py/BitstampClient.svg
     :target: https://badge.fury.io/py/BitstampClient
 

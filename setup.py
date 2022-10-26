@@ -3,6 +3,9 @@ from setuptools.command.test import test as TestCommand
 import sys
 
 
+# read the contents of your README file
+README = open('README.rst', 'r').read()
+
 class Tox(TestCommand):
 
     def finalize_options(self):
@@ -19,7 +22,7 @@ class Tox(TestCommand):
 
 setup(
     name='BitstampClient',
-    version='2.2.9',
+    version='2.2.10',
     description='Bitstamp API python implementation',
     packages=['bitstamp'],
     url='https://github.com/kmadac/bitstamp-python-client',
@@ -29,4 +32,6 @@ setup(
     install_requires=['requests'],
     tests_require=['tox'],
     cmdclass={'test': Tox},
+    long_description=README,
+    long_description_content_type='text/x-rst'
 )
